@@ -17,32 +17,41 @@ wp.blocks.registerBlockType('derorpc/gateway', {
         const updateAPIKey = (event) => {
             props.setAttributes({APIKey: event.target.value});
         }
-        const USDtoDERO = (event) => {
-            let myAPIKey = props.attributes.APIKey;
-            
+        const USDtoDERO = async(event) => {
             const packet = {
                 "currency": "USD",
                 "code": "DERO"
             }
 
+            let myAPIKey = 'c8573f42-e797-43e9-811d-07effb255ad8'; //c8573f42-e797-43e9-811d-07effb255ad8 Hard Coded For DEBUGGING
+
+            if(props.attributes.APIKey == '') {
+                //Default API Key
+                myAPIKey = 'c8573f42-e797-43e9-811d-07effb255ad8';
+            }
+            else{
+                myAPIKey = props.attributes.APIKey;
+            }
+
             const rawResponse = await fetch('https://api.livecoinwatch.com/coins/single', {
                 method: 'POST',
                 headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json',
-                  'x-api-key': myAPIKey
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-api-key': myAPIKey
                 },
                 body: JSON.stringify(packet)
-            })
-            .catch(error => {alert(error)});
-            const response = await rawResponse.json();
-
-            let currentRate = response.rate;
-
-            DEROamount = USDamount * (1/currentRate);  //   Converts USD Amount to DERO Amount based upon current rate
-            DEROamount = DEROamount.toFixed(5);       //    Uses 5 Atomic Unit Precision for DERO Amount
+            }).catch(error => {alert(error)});
+            const content = await rawResponse.json();
+            let currentRate = content.rate;
             
+            let DEROamount = 99.999 * (1/currentRate);
+            DEROamount = DEROamount.toFixed(5);         //   Converts USD Amount to DERO Amount based upon current rate
+            DEROamount = parseFloat(DEROamount);       //    Uses 5 Atomic Unit Precision for DERO Amount
+
+            console.log(content.rate);
             console.log(content);
+            console.log(DEROamount);
         }
         return (
             <div>
