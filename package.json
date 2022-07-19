@@ -1,26 +1,21 @@
 {
-  "name": "dero-rpc-bridge",
-  "version": "1.0.0",
-  "description": "Interface to connect with DERO RPC Chrome Extension",
-  "main": "./src/index.js",
-  "scripts": {
-    "build": "wp-scripts build",
-    "start": "wp-scripts start",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CaptainUnknown/DERO-RPC-Bridge.git"
-  },
-  "author": "CaptainUnknown",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/CaptainUnknown/DERO-RPC-Bridge/issues"
-  },
-  "homepage": "https://github.com/CaptainUnknown/DERO-RPC-Bridge#readme",
-  "dependencies": {
-    "@wordpress/scripts": "^23.5.0",
-    "await-to-js": "^3.0.0",
-    "nanoid": "^4.0.0"
-  }
+    "name": "ourblocks-plugin",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "wp-scripts build frontend/heading-ui.scss frontend/heading-ui.js backend/heading.js backend/heading.scss",
+        "start": "wp-scripts start frontend/heading-ui.scss frontend/heading-ui.js backend/heading.js backend/heading.scss",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@wordpress/scripts": "^23.1.0",
+        "await-to-js": "^3.0.0",
+        "browser-sync": "^2.27.10",
+        "nanoid": "^4.0.0",
+        "npm-run-all": "^4.1.5"
+    }
 }
