@@ -8,16 +8,48 @@
   Author URI: https://web3naut.com
 */
 
-if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly (For example by malicious bots that want to exploit this plugin)
 
-class DERORPC {
-    function __construct() {
-        add_action('enqueue_block_editor_assets', array($this, 'adminAssets'));
+class Block {
+    function __construct($name) {
+        $this->name = $name;
+        add_action('init', array($this,'onInit'));
     }
 
-    function adminAssets() {
-        wp_enqueue_script('dero-payment-gateway', plugin_dir_url(__FILE__). 'build/index.js', array('wp-blocks', 'wp-element'));
+    function onInit() {
+        wp_register_script($this->name . '_script', plugin_dir_url(__FILE__) . "build/{$this->name}.js", array('wp-blocks', 'wp-editor'));
+        wp_register_style($this->name . '_style', plugin_dir_url(__FILE__) . "build/{$this->name}.css");
+
+        $arguments = array(
+            'render_callback' => array($this, 'onRender'),
+            'editor_style' => "{$this->name}_style",
+            'editor_script' => "{$this->name}_script",
+        );
+
+        register_block_type("dero-payment-gateway/{$this->name}", $arguments);
+    }
+
+    function onRender($attributes) {
+        $attributes['name'] = $this->name;
+
+        if (!is_admin()) {
+            wp_enqueue_script($this->name . '_ui_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.js", array('wp-element')); //Make sure to use double quotes after plugin_dir_url, single quotes won't use {$this->name}
+            wp_enqueue_style($this->name . '_ui_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.css");
+        }
+
+        ob_start();
+        ?>
+
+        <pre class="attributes" style="display:none;">
+            <?php echo wp_json_encode($attributes) ?>
+        </pre>
+
+        <div class="replace-<?php echo $this->name;?>">
+        </div>
+
+        <?php return ob_get_clean();
     }
 }
 
-$derorpc = new DERORPC();
+
+$heading = new Block("heading");
