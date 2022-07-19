@@ -1,22 +1,25 @@
-import "./heading-ui.scss"
+import "./payment-gateway-ui.scss"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import to from 'await-to-js'
+
+import DeroBridgeApi from './bridgeAPI'
 
 
 document.addEventListener("DOMContentLoaded", (event) => {
-    const allAttributes = document.querySelectorAll(".attributes")
+    const allAttributes = document.querySelectorAll(".attributes");
     allAttributes.forEach(attributeElement => {
-        const attributes = JSON.parse(attributeElement.innerText)
-        const currentBlockName = attributes.name
-        const currentBlock = document.querySelectorAll('.replace-' + currentBlockName)[0]
-        ReactDOM.render(<Heading {...attributes}/>, currentBlock)
-        currentBlock.classList.remove("replace-" + currentBlockName)
-    })
-})
+        const attributes = JSON.parse(attributeElement.innerText);
+        const currentBlockName = attributes.name;
+        const currentBlock = document.querySelectorAll('.replace-' + currentBlockName)[0];
+        ReactDOM.render(<Gateway {...attributes}/>, currentBlock);
+        currentBlock.classList.remove("replace-" + currentBlockName);
+    });
+});
 
 
-const Heading = (props) => {
-    const [size, setSize] = useState(false)
+const Gateway = (props) => {
+    const [size, setSize] = useState(false);
 
     const USDtoDERO = async(event) => {
         const packet = {
@@ -54,17 +57,16 @@ const Heading = (props) => {
         console.log(content.rate);
         console.log(content);
         console.log(DEROamount);
+
         alert('USD to DERO!');
     }
-    USDtoDERO();
+    //USDtoDERO();
 
     return (
         <div className="payBlock">
-            <p>
-                <button onClick={() => setSize(prev => !prev)}>Toggle heading h1 or h2 size</button>
-            </p>
-            {size && <h1 style={{color: props.color}}>Mehroz</h1>}
-            {!size && <h2 style={{color: props.color}}>Palu</h2>}
+            <h3>🔏 DERO Payment Gateway 🪙</h3>
+            <p>Smart Contract Address: {props.SCID}</p>
+            <p>Amount in USD: {props.USDamount}</p>
         </div>
     )
 }

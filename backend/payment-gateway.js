@@ -1,4 +1,4 @@
-import "./heading.scss"
+import "./payment-gateway.scss"
 import { registerBlockType } from "@wordpress/blocks"
 
 const EditComponent = (props) => {
@@ -15,16 +15,16 @@ const EditComponent = (props) => {
         <div>
             <h3>🔏 DERO Payment Gateway 🎛️ Configuration 🔧</h3>
             <p>Smart Contract ID 📃:</p>
-            <input type='text' id='SCID' value={props.attributes.SCID} placeholder='0x______' onChange={updateSCID}/><br/><br/>
+            <input type='text' id='SCID' value={props.attributes.SCID} placeholder='0x______' onChange={updateSCID}/><br/>
             <p>USD Amount 💲:</p>
-            <input type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
+            <input type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/>
             <p>livecoinwatch.com 🪙 API Key 🗝️ (Optional):</p>
-            <input type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
+            <input type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/>
         </div>
     )
 }
 
-registerBlockType("dero-payment-gateway/heading", {
+registerBlockType("dero/payment-gateway", {
     title: 'DERO Payment Gateway',
     icon: 'money-alt',
     category: "common",
