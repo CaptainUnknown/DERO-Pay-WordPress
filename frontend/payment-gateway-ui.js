@@ -40,6 +40,37 @@ const Gateway = (props) => {
       return () => window.removeEventListener('load', load);
     }, []);
 
+    const getWalletBalance = React.useCallback(async () => {
+        const deroBridgeApi = deroBridgeApiRef.current;
+        const [err, res] = await to(deroBridgeApi.wallet('get-balance'));
+        if (err) 
+            alert(err.message);
+        else{
+            alert('Wallet Balance 📇: ' + res.data.result.balance);
+        }
+    }, []);
+
+    const getWalletTokenBalance = React.useCallback(async () => {
+        const deroBridgeApi = deroBridgeApiRef.current;
+        const [err, res] = await to(deroBridgeApi.wallet('get-balance', { SCID: props.TSCID }));
+        if (err) 
+            alert(err.message);
+        else
+            alert('Wallet Token Balance 🪙: ' + res.result.balance);
+    }, []);
+
+    const transfer = React.useCallback(async () => {
+        const deroBridgeApi = deroBridgeApiRef.current;
+        const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
+          scid: attributes.SCID, //CHANGES REQUIRED
+          destination: attributes.ownerWallet,
+          amount: USDtoDERO(),
+        }));
+    
+        console.log(err);
+        console.log(res);
+    }, []);
+
     const USDtoDERO = async() => {
         const packet = {
             "currency": "USD",
