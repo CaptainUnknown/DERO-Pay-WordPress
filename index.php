@@ -32,11 +32,15 @@ class Block {
     function onRender($attributes) {
         $attributes['name'] = $this->name;
 
-        if (!is_admin()) {
+        if (!is_admin() && is_user_logged_in()) {
             wp_enqueue_script($this->name . '_ui_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.js", array('wp-element')); //Make sure to use double quotes after plugin_dir_url, single quotes won't use {$this->name}
             wp_enqueue_style($this->name . '_ui_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.css");
             
             wp_enqueue_script($this->name . '_api_script', plugin_dir_url(__FILE__) . "build/bridgeAPI.js", array('wp-element')); //DERO Bridge API
+        }
+        elseif (!is_admin() && !is_user_logged_in()) {
+            wp_enqueue_script($this->name. '_ui_loggedout_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui-loggedout.js", array('wp-element')); //Asks User to Login to use DERO Payment Option
+            wp_enqueue_style($this->name . '_ui_loggedout_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui-loggedout.css");
         }
 
         ob_start();
