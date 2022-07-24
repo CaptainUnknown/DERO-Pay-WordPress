@@ -2,8 +2,7 @@ import "./payment-gateway-ui.scss"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import to from 'await-to-js'
-
-//import { completePurchase } from "./completePurchase"
+import { completePurchase } from "./completePurchase"
 
 import DeroBridgeApi from './bridgeAPI'
 
@@ -22,6 +21,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 const Gateway = (props) => {
     const [size, setSize] = useState(false);
 
+    console.log(attributes.user_id);
+
     let isCustom = new Boolean(false);
 
     if(attributes.DSCID == ''){
@@ -30,18 +31,52 @@ const Gateway = (props) => {
     else if(attributes.TSCID == ''){
         isCustom = false;
     }
-    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.directTransfer == true){
+    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.isDirectTransfer == false){
         return <>
         <div className="payBlock">
-            <p>Missing Smart Contract ID ❌, Gateway needs atleast one contract in order to work.</p>
+            <p>Missing Smart Contract ID ❌, Gateway needs a contract to function, if direct transfer is disabled.</p>
         </div>
         </>
     }
 
-    if(attributes.USDamount == ''){
+    if(attributes.isDirectTransfer == true && attributes.USDamount == ''){
         return <>
         <div className="payBlock">
-            <p>Missing USD Price ❌, USD Price needs to be greater than 0.</p>
+            <p>Missing USD Price ❌, USD Price needs to be greater than 0 if Direct transfer is enabled.</p>
+        </div>
+        </>
+    }
+
+    if(attributes.courseID == ''){
+        return <>
+        <div className="payBlock">
+            <p>Missing Course ID ❌, Needs a course ID for the user to purchase.</p>
+        </div>
+        </>
+    }
+
+    //Validates whether the course with provided courseID exists or not
+    let isCourseIDValid = new Boolean(true);
+    fetch(`https://templisaquaria.com/wp-json/ldlms/v1/sfwd-courses/${attributes.courseID}`)
+	.then(response => response.json())
+	.then(data => {
+        console.log(data);
+        if (data.date == undefined){
+            isCourseIDValid = false;
+        }
+    })
+	.catch(err => {
+        console.error(err);
+        if (data.date == undefined){
+            isCourseIDValid = false;
+        }
+    });
+
+    console.log(isCourseIDValid);
+    if(isCourseIDValid == false){
+        return <>
+        <div className="payBlock">
+            <p>Invalid Course ID ❌, Please enter a valid course ID.</p>
         </div>
         </>
     }
@@ -88,21 +123,21 @@ const Gateway = (props) => {
         const deroBridgeApi = deroBridgeApiRef.current;
         const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
           scid: attributes.SCID, //CHANGES REQUIRED
-          destination: attributes.ownerWallet,
+          destination: attributes.destinationWalletAddress,
           amount: USDtoDERO(),
         }));
     
         console.log(err);
         console.log(res);
 
-        completePurchase(7324, 454) //TODO: Set it to the course ID & current UserID
+        completePurchase(7324, attributes.user_id) //TODO: Set it to the course ID & current UserID
         .then(response => {
             console.log(response);
         })
         .catch(error => {
             alert(error)
         });
-        // Needs Changes    
+        // Needs Changes
     }, []);
 
     const USDtoDERO = async() => {
