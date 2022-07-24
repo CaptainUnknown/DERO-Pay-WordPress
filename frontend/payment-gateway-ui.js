@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import to from 'await-to-js'
 
-import { completePurchase } from "./completePurchase"
+//import { completePurchase } from "./completePurchase"
 
 import DeroBridgeApi from './bridgeAPI'
 
@@ -22,8 +22,32 @@ document.addEventListener("DOMContentLoaded", (event) => {
 const Gateway = (props) => {
     const [size, setSize] = useState(false);
 
-    const deroBridgeApiRef = React.useRef()
-    const [bridgeInitText, setBridgeInitText] = React.useState('')
+    let isCustom = new Boolean(false);
+
+    if(attributes.DSCID == ''){
+        isCustom = true;
+    }
+    else if(attributes.TSCID == ''){
+        isCustom = false;
+    }
+    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.directTransfer == true){
+        return <>
+        <div className="payBlock">
+            <p>Missing Smart Contract ID ❌, Gateway needs atleast one contract in order to work.</p>
+        </div>
+        </>
+    }
+
+    if(attributes.USDamount == ''){
+        return <>
+        <div className="payBlock">
+            <p>Missing USD Price ❌, USD Price needs to be greater than 0.</p>
+        </div>
+        </>
+    }
+
+    const deroBridgeApiRef = React.useRef();
+    const [bridgeInitText, setBridgeInitText] = React.useState('');
   
     React.useEffect(() => {
       const load = async () => {
@@ -71,7 +95,7 @@ const Gateway = (props) => {
         console.log(err);
         console.log(res);
 
-        completePurchase(7324, 454)
+        completePurchase(7324, 454) //TODO: Set it to the course ID & current UserID
         .then(response => {
             console.log(response);
         })
@@ -124,12 +148,10 @@ const Gateway = (props) => {
     return (
         <div className="payBlock">
             <h3>🔏 DERO Payment Gateway 🪙</h3>
-            <button onClick={transfer}>Send transfer</button>
-            <button onClick={getWalletBalance}>Get balance</button>
-            <button onClick={getWalletTokenBalance}>Get token balance</button>
-            <p>DERO Smart Contract Address: {props.DSCID}</p>
-            <p>Amount in USD: {props.USDamount}</p>
-            <p>Owner Wallet: {props.ownerWallet}</p>
+            <button onClick={transfer}>Purchase</button>
+            <button onClick={getWalletBalance}>Check My Wallet Balance</button>
+            <button onClick={getWalletTokenBalance}>Check My Token Balance</button>
+            <p>Price: {props.USDamount}</p>
         </div>
     )
 }
