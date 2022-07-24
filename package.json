@@ -4,8 +4,8 @@
     "description": "Interface to connect with DERO RPC Chrome Extension",
     "main": "index.js",
     "scripts": {
-        "build": "wp-scripts build frontend/payment-gateway-ui frontend/payment-gateway-ui-loggedout frontend/bridgeAPI backend/payment-gateway",
-        "start": "wp-scripts start frontend/payment-gateway-ui frontend/payment-gateway-ui-loggedout frontend/bridgeAPI backend/payment-gateway",
+        "build": "wp-scripts build frontend/payment-gateway-ui frontend/completePurchase frontend/payment-gateway-ui-loggedout frontend/bridgeAPI backend/payment-gateway",
+        "start": "wp-scripts start frontend/payment-gateway-ui frontend/completePurchase frontend/payment-gateway-ui-loggedout frontend/bridgeAPI backend/payment-gateway",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
