@@ -3,6 +3,8 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import to from 'await-to-js'
 
+import { completePurchase } from "./completePurchase"
+
 import DeroBridgeApi from './bridgeAPI'
 
 var attributes;
@@ -16,7 +18,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         currentBlock.classList.remove("replace-" + currentBlockName);
     });
 });
-
 
 const Gateway = (props) => {
     const [size, setSize] = useState(false);
@@ -69,6 +70,15 @@ const Gateway = (props) => {
     
         console.log(err);
         console.log(res);
+
+        completePurchase(7324, 454)
+        .then(response => {
+            console.log(response);
+        })
+        .catch(error => {
+            alert(error)
+        });
+        // Needs Changes    
     }, []);
 
     const USDtoDERO = async() => {
