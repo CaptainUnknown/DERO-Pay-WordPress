@@ -37,6 +37,12 @@ class Block {
             wp_enqueue_style($this->name . '_ui_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.css");
             
             wp_enqueue_script($this->name . '_api_script', plugin_dir_url(__FILE__) . "build/bridgeAPI.js", array('wp-element')); //DERO Bridge API
+
+            wp_enqueue_script('completePurchase', 'build/completePurchase.js');
+            wp_localize_script('completePurchase', 'purchaseData', [
+                'root' => esc_url_raw(rest_url()),
+                'nonce' => wp_create_nonce('wp_rest')
+            ]);
         }
         elseif (!is_admin() && !is_user_logged_in()) {
             wp_enqueue_script($this->name. '_ui_loggedout_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui-loggedout.js", array('wp-element')); //Asks User to Login to use DERO Payment Option
