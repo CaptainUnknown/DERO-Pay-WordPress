@@ -33,6 +33,7 @@ class Block {
         $attributes['name'] = $this->name;
 
         if (!is_admin() && is_user_logged_in()) {
+            $attributes['user_id'] = get_current_user_id();
             wp_enqueue_script($this->name . '_ui_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.js", array('wp-element')); //Make sure to use double quotes after plugin_dir_url, single quotes won't use {$this->name}
             wp_enqueue_style($this->name . '_ui_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.css");
             
