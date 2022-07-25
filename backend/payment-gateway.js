@@ -2,12 +2,14 @@ import "./payment-gateway.scss"
 import { registerBlockType } from "@wordpress/blocks"
 
 const EditComponent = (props) => {
-    props.attributes.USDamount = 0;
-    const updateDSCID = (event) => {
-        props.setAttributes({DSCID: event.target.value});
-    }
     const updateTSCID = (event) => {
         props.setAttributes({TSCID: event.target.value});
+    }
+    const updateTokenAmount = (event) => {
+        props.setAttributes({tokenAmount: event.target.value});
+    }
+    const updateDSCID = (event) => {
+        props.setAttributes({DSCID: event.target.value});
     }
     const updateAmount = (event) => {
         props.setAttributes({USDamount: event.target.value});
@@ -22,16 +24,18 @@ const EditComponent = (props) => {
         props.setAttributes({courseID: event.target.value});
     }
     const updateDestinationWalletAddress = (event) => {
-        props.setAttributes({courseID: event.target.value});
+        props.setAttributes({destinationWalletAddress: event.target.value});
     }
 
     return (
         <div className="configurationBlock">
             <h3>🔏 DERO Payment Gateway Configuration 🔧</h3>
 
-            <p>Token 🪙 Payment Smart Contract 🆔 📃: <input type='text' id='TSCID' value={props.attributes.TSCID} placeholder='0x______' onChange={updateTSCID}/><br/><br/></p>
+            <p>Token 🪙 Payment Smart Contract 🆔 📃: <input type='text' id='TSCID' value={props.attributes.TSCID} placeholder='Token SCID' onChange={updateTSCID}/><br/><br/></p>
+
+            <p>Custom Token Price 🪙: <input type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/></p>
             
-            <p>DERO 💱 Payment Smart Contract 🆔 📃: <input type='text' id='DSCID' value={props.attributes.DSCID} placeholder='0x______' onChange={updateDSCID}/><br/><br/></p>
+            <p>DERO 💱 Payment Smart Contract 🆔 📃: <input type='text' id='DSCID' value={props.attributes.DSCID} placeholder='DERO SCID' onChange={updateDSCID}/><br/><br/></p>
 
             <p><label>Is Direct Transfer: <input type="checkbox" id='isDirectTransfer' onChange={updateIsDirectTransfer} /></label><br/><br/></p>
             
@@ -41,7 +45,7 @@ const EditComponent = (props) => {
 
             <p>Livecoinwatch.com 🪙 API Key 🗝️ (Optional): <input type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/></p>
 
-            <p>Destination Wallet Address 📇: <input type='text' id='destinationWalletAddress' value={props.attributes.destinationWalletAddress} placeholder='deroqy______' onChange={updateDestinationWalletAddress}/><br/><br/></p>
+            <p>Destination Wallet Address 📇: <input type='text' id='destinationWalletAddress' value={props.attributes.destinationWalletAddress} placeholder='deroqyXXXX' onChange={updateDestinationWalletAddress}/><br/><br/></p>
             
         </div>
     )
@@ -53,6 +57,7 @@ registerBlockType("dero/payment-gateway", {
     category: "common",
     attributes: {
         TSCID: {type: 'string'},
+        tokenAmount: {type: 'integer'},
         DSCID: {type: 'string'},
         USDamount: {type: 'integer'},
         courseID: {type: 'integer'},
