@@ -3,7 +3,7 @@
 # DERO-RPC-Bridge 🔌
 WordPress Plugin for an Interface to connect with [DERO RPC Chrome Extension](https://chrome.google.com/webstore/detail/dero-rpc-bridge/nmofcfcaegdplgbjnadipebgfbodplpd).
 
-Plugin connects & sends a curl request to DERO Wallet through the [DERO RPC Extension API](https://github.com/g45t345rt/dero-rpc-bridge). After Connecting to the wallet webapp can invoke any Smart Contract or perform a transaction with provided parameters.
+Plugin connects & Communicates with DERO Wallet through the [DERO RPC Extension API](https://github.com/g45t345rt/dero-rpc-bridge). After Connecting to the wallet webapp can invoke any Smart Contract or perform a transaction with provided parameters.
 
 After placing one of the folders in your WordPress **plugins** folder (that can be found under **wp-content**), you can then:
 
@@ -52,3 +52,13 @@ After placing one of the folders in your WordPress **plugins** folder (that can 
 **Destination Wallet Address**:
 
 `string` - Destination Wallet Address for the transfer. Required if Is Direct Transfer is checked otherwise can be left empty.
+
+## Screenshots 🖼️
+**Configuration Block:**
+<img src="https://i.imgur.com/2bY5coz.png" alt="Configuration Block" width="650"/>
+
+**Payment Block:**
+<img src="https://i.imgur.com/sQNvwwe.png" alt="Payment Block" width="650"/>
+
+**LoggedOut Block:**
+<img src="https://i.imgur.com/uGAaJlQ.png" alt="LoggedOut Block" width="650"/>

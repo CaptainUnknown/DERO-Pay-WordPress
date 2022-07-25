@@ -1,0 +1,50 @@
+/*!*********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./frontend/payment-gateway-ui.scss ***!
+  \*********************************************************************************************************************************************************************************************************************************************************/
+@import url(https://fonts.googleapis.com/css2?family=Archivo:wght@600&display=swap);
+/*!*************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./frontend/payment-gateway-ui.scss (1) ***!
+  \*************************************************************************************************************************************************************************************************************************************************************/
+.payBlock {
+  color: #12c867;
+  width: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  font-family: "Archivo";
+  font-size: 1em;
+  border: 6px solid #12c867;
+  border-radius: 4px;
+  background-color: #091119;
+}
+.payBlock h3 {
+  text-align: center;
+  font-family: "Archivo";
+  font-size: 2em;
+}
+.payBlock p {
+  margin: 0;
+  padding-left: 2vw;
+}
+.payBlock input {
+  color: #d0d0d0;
+  margin: 0;
+  margin-left: 1vw;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid #9c9c9c;
+  border-radius: 0px;
+}
+.payBlock button {
+  align-self: center;
+  color: white;
+  background-color: #254666;
+  border-radius: 4px;
+  width: 40vw;
+  margin-bottom: 3vh;
+}
+.payBlock button:hover {
+  background-color: #376899;
+  width: 41vw;
+}
+
+/*# sourceMappingURL=payment-gateway-ui.css.map*/
