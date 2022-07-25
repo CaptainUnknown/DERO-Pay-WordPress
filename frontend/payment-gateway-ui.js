@@ -30,7 +30,7 @@ const Gateway = (props) => {
     else if(attributes.TSCID == ''){
         isCustom = false;
     }
-    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.isDirectTransfer == false){
+    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.isDirectTransfer == 'on'){
         return <>
         <div className="payBlock">
             <p>❌ Missing Smart Contract ID, Gateway needs a contract to function, if direct transfer is disabled.</p>
@@ -38,7 +38,7 @@ const Gateway = (props) => {
         </>
     }
 
-    if(attributes.isDirectTransfer == true && attributes.USDamount == undefined){
+    if(attributes.isDirectTransfer == 'on' && attributes.USDamount == undefined){
         return <>
         <div className="payBlock">
             <p>❌ Missing USD Price, USD Price needs to be greater than 0 if Direct transfer is enabled.</p>
@@ -61,30 +61,29 @@ const Gateway = (props) => {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            if (data.data.status == 404){
+            if (data.date == undefined){
                 isCourseIDValid = false;
             }
+            else if (data.date) {
+                isCourseIDValid = true;
+            }
         })
-        .catch(err => {
-            console.error(err);
+        .catch(error => {
+            console.log(error);
             isCourseIDValid = false;
         });
     
-        console.log(isCourseIDValid);
-        if(!isCourseIDValid){
-            return <>
-            <div className="payBlock">
-                <p>⚠️ Invalid Course ID, Please enter a valid course ID.</p>
-            </div>
-            </>
+        console.log('Is Course ID Valid: ' + isCourseIDValid);
+        if (!isCourseIDValid){
+            alert('⚠️ Invalid Course ID, Please enter a valid course ID.');
         }
     }
     checkCourseID();
 
-    if(attributes.destinationWalletAddress == undefined && attributes.isDirectTransfer == true){
+    if(attributes.destinationWalletAddress == undefined && attributes.isDirectTransfer == 'on'){
         return <>
         <div className="payBlock">
-            <p>❌ Missing Destination Wallet Address, Destination Wallet is required when Direct Transfer is checked.</p>
+            <p>❌ Missing Destination Wallet Address, Destination Wallet is required when Direct Transfer is on.</p>
         </div>
         </>
     }
@@ -101,13 +100,22 @@ const Gateway = (props) => {
             "currency": "USD",
             "code": "DERO"
         })
-    }).catch(error => {
-        alert(error);
+    })
+    .then(res => {
+        res.json();
+        if(res.error.code == 401){
+            isAPIKeyValid = false;
+        }
+    })
+    .catch(error => {
         isAPIKeyValid = false;
     });
     if(!isAPIKeyValid){
-        attributes.APIKey = '';
+        attributes.APIKey = undefined;
+        console.log('API Key is invalid, Chaning it to Default key');
     }
+
+    console.log('Bridging...');
 
     const deroBridgeApiRef = React.useRef();
     const [bridgeInitText, setBridgeInitText] = React.useState('');
@@ -148,7 +156,7 @@ const Gateway = (props) => {
     }, []);
 
     const transfer = React.useCallback(async () => {
-        if(isCustom && attributes.isDirectTransfer == false){
+        if(isCustom && attributes.isDirectTransfer == 'on'){
             const deroBridgeApi = deroBridgeApiRef.current;
             const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { //Token custom smart contract
               scid: attributes.TSCID,
@@ -167,7 +175,7 @@ const Gateway = (props) => {
                 alert(error)
             });
         }
-        else if (!isCustom && attributes.isDirectTransfer == false){
+        else if (!isCustom && attributes.isDirectTransfer == 'on'){
             const deroBridgeApi = deroBridgeApiRef.current;
             const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { //DERO custom smart contract
               scid: attributes.DSCID,
@@ -202,7 +210,7 @@ const Gateway = (props) => {
                 console.log(response);
             })
             .catch(error => {
-                alert(error)
+                alert(error);
             });
         }
     }, []);
@@ -213,7 +221,8 @@ const Gateway = (props) => {
             "code": "DERO"
         }
 
-        if(attributes.APIKey == '') {
+        let myAPIKey;
+        if(attributes.APIKey == undefined || attributes.APIKey == '') {
             //Default API Key
             myAPIKey = 'c8573f42-e797-43e9-811d-07effb255ad8';
         }
@@ -229,7 +238,9 @@ const Gateway = (props) => {
                 'x-api-key': myAPIKey
             },
             body: JSON.stringify(packet)
-        }).catch(error => {alert(error)});
+        }).catch(error => {
+            alert('Something went wrong, :( Please try again later.');
+        });
 
         const content = await rawResponse.json();
         let currentRate = content.rate;
@@ -244,6 +255,12 @@ const Gateway = (props) => {
 
         return DEROamount;
     }
+
+    let test = USDtoDERO();
+    console.log(test);
+    console.log('Is Direct Transfer: ' + attributes.isDirectTransfer);
+    console.log(attributes.isDirectTransfer == 'on');
+    console.log(attributes.isDirectTransfer);
 
     let currency = 'DERO';
     if (isCustom){
