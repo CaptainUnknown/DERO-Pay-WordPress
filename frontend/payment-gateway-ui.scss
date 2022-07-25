@@ -1,18 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600&display=swap');
 
 .payBlock {
-  
-  div {
-    color: #12c867;
-    width: 100%;
-    display: inline-flex;
-    flex-direction: column;
-    font-family: 'Archivo';
-    font-size: 1em;
-    border: 6px solid #12c867;
-    border-radius: 4px;
-    background-color: #091119;
-  }
+  color: #12c867;
+  width: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  font-family: 'Archivo';
+  font-size: 1em;
+  border: 6px solid #12c867;
+  border-radius: 4px;
+  background-color: #091119;
   
   h3 {
     text-align: center;
@@ -33,5 +30,19 @@
     border: none;
     border-bottom: 3px solid #9c9c9c;
     border-radius: 0px;
-  } 
+  }
+
+  button{
+    align-self: center;
+    color: white;
+    background-color: #254666;
+    border-radius: 4px;
+    width: 40vw;
+    margin-bottom: 3vh;
+  }
+
+  button:hover{
+    background-color: #376899;
+    width: 41vw;
+  }
 }
