@@ -11,7 +11,7 @@ export const completePurchase = async(courseID, userID) => {
     let packet = JSON.stringify(data);
     console.log(purchaseData.nonce);
     const response = await (fetch(
-        `http://templisaquaria.com/wp-json/ldlms/v1/sfwd-courses/${courseID}/users`,
+        `https://templisaquaria.com/wp-json/ldlms/v1/sfwd-courses/${courseID}/users`,
         {
             body: packet,
             headers: {
