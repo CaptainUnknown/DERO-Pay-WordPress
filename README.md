@@ -53,12 +53,25 @@ After placing one of the folders in your WordPress **plugins** folder (that can 
 
 `string` - Destination Wallet Address for the transfer. Required if Is Direct Transfer is checked otherwise can be left empty.
 
+
+
+## Customization 🎛️
+**On Complete Purchase**:
+
+`completePurchase.js` - It exports a custom function that is called when the transaction has been made. `completePurchase` is a very basic function that sends the server a POST Request with ``$user_id`` & ``courseID`` as a parameters. You can add any functionality or change the REST Endpoint in `completePurchase.js` to better suit your needs.
+
+`index.php` - To add any custom script/styles to the plugin, just enqueue the scripts/styles in `index.php`. `onInit` Scripts are loaded in the editor while `onRender` is called on preview & final page.
+[Syntax Guide to enqueue scripts](https://developer.wordpress.org/reference/functions/wp_enqueue_script/).
+[Syntax Guide to enqueue styles](https://developer.wordpress.org/reference/functions/wp_enqueue_style/).
+
+
+
 ## Screenshots 🖼️
 **Configuration Block:**
-<img src="https://i.imgur.com/2bY5coz.png" alt="Configuration Block" width="650"/>
+![Configuration Block](https://i.imgur.com/2bY5coz.png)
 
 **Payment Block:**
-<img src="https://i.imgur.com/sQNvwwe.png" alt="Payment Block" width="650"/>
+![Payment Block](https://i.imgur.com/sQNvwwe.png)
 
 **LoggedOut Block:**
-<img src="https://i.imgur.com/uGAaJlQ.png" alt="LoggedOut Block" width="650"/>
+![LoggedOut Block](https://i.imgur.com/uGAaJlQ.png)
