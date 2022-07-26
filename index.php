@@ -3,9 +3,12 @@
 /*
   Plugin Name: DERO Payment Gateway
   Description: Interface to connect with DERO RPC Chrome Extension
-  Version: 1.0
+  Version: 0.9.5
   Author: CaptainUnknown
   Author URI: https://web3naut.com
+  License: MIT
+  License URI: https://opensource.org/licenses/MIT
+  Update URI: https://github.com/CaptainUnknown/DERO-RPC-Bridge-WordPress/releases/latest
 */
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly (For example by malicious bots that want to exploit this plugin)
