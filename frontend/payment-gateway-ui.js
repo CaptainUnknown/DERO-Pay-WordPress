@@ -210,9 +210,11 @@ const Gateway = (props) => {
         if(attributes.isDirectTransfer == 'on'){
             const deroBridgeApi = deroBridgeApiRef.current;
             const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { //Direct Transfer
-              scid: '0000000000000000000000000000000000000000000000000000000000000000',
-              destination: attributes.destinationWalletAddress,
-              amount: DEROPrice,
+                transfers: [{
+                    destination: attributes.destinationWalletAddress,
+                    amount: DEROPrice,
+                    burn: 0,
+                }]
             }))
             .then(res => {
                 console.log(res);
