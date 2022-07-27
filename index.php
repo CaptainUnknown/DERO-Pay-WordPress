@@ -3,7 +3,7 @@
 /*
   Plugin Name: DERO Payment Gateway
   Description: Interface to connect with DERO RPC Chrome Extension
-  Version: 0.9.7
+  Version: 0.9.9
   Author: CaptainUnknown
   Author URI: https://web3naut.com
   License: MIT

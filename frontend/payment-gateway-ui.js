@@ -238,6 +238,7 @@ const Gateway = (props) => {
             });
         }
         else if (!isCustom && attributes.isDirectTransfer == 'off'){
+            /*
             const deroBridgeApi = deroBridgeApiRef.current;
             const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { // DERO SCID Transfer
               scid: attributes.DSCID,
@@ -264,8 +265,10 @@ const Gateway = (props) => {
                 console.log(err);
                 alert('Transact Failed 🌐, Check Console for more details.');
             });
+            */
         }
         else if (isCustom && attributes.isDirectTransfer == 'off'){ 
+            /*
             const deroBridgeApi = deroBridgeApiRef.current;
             const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { //Token Custom Smart Contract
               scid: attributes.TSCID,
@@ -291,7 +294,7 @@ const Gateway = (props) => {
             .catch(err => {
                 console.log(err);
                 alert('Transact Failed 🌐, Check Console for more details.');
-            });
+            });*/
         }
     }, []);
 

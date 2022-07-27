@@ -5,6 +5,9 @@ WordPress Plugin for an Interface to connect with [DERO RPC Chrome Extension](ht
 
 Plugin connects & Communicates with DERO Wallet through the [DERO RPC Extension API](https://github.com/g45t345rt/dero-rpc-bridge). After Connecting to the wallet webapp can invoke any Smart Contract or perform a transaction with provided parameters.
 
+🎁 If you want to support the continuous effort to further develop this plugin, please consider donating DERO at:
+`Captain_Unknown` or `dero1qyq7zg0aa06vsh9z46w0ypms70haz55ff2vv60aph65j9dfn5mjv6qqfsf2k7`.
+
 After placing one of the folders in your WordPress **plugins** folder (that can be found under **wp-content**), you can then:
 
 1. Point your terminal towards the **DERO-RPC-Bridge** folder (with admin rights).
@@ -13,7 +16,10 @@ After placing one of the folders in your WordPress **plugins** folder (that can 
 4. In WordPress Editor, Drag & Drop plugin Block. Change the fields to desired parameters.
 5. Click `Update` & `Preview`.
 
+
 ## Parameters 🔧
+(⚠️ `Token SCID`, `Token Price` & `DERO SCID` have now been temporarily disabled. Because they are currently WIP.)
+
 **Token SCID**:
 
 `string` - Smart Contract ID to be invoked for custom payment contract with your own Token, (To check if the SCID is valid, visit: [DERO Explorer](https://explorer.dero.io/)).

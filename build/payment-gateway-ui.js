@@ -387,6 +387,7 @@ document.addEventListener("DOMContentLoaded", event => {
 
 const Gateway = props => {
   const [size, setSize] = (0,react__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
+  var DEROPrice;
   console.log(attributes.user_id);
   let isCustom = new Boolean(false);
 
@@ -470,6 +471,50 @@ const Gateway = props => {
     console.log('API Key is invalid, Chaning it to Default key');
   }
 
+  const USDtoDERO = () => {
+    let myAPIKey;
+
+    if (attributes.APIKey == undefined || attributes.APIKey == '') {
+      //Default API Key
+      myAPIKey = 'c8573f42-e797-43e9-811d-07effb255ad8';
+    } else {
+      myAPIKey = attributes.APIKey;
+    }
+
+    var rawResponse;
+    fetch("https://api.livecoinwatch.com/coins/single", {
+      body: "{\"currency\":\"USD\",\"code\":\"DERO\",\"meta\":false}",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": myAPIKey
+      },
+      method: "POST"
+    }).then(res => res.json()).then(data => {
+      rawResponse = data;
+      console.log(rawResponse);
+      console.log(rawResponse);
+      const content = rawResponse;
+      let currentRate = content.rate;
+      console.log(content);
+      console.log(currentRate);
+      let DEROamount = attributes.USDamount * (1 / currentRate); //   Converts USD Amount to DERO Amount based upon current rate
+
+      DEROamount = DEROamount.toFixed(5); //    Uses 5 Atomic Unit Precision for DERO Amount
+
+      DEROamount = parseFloat(DEROamount) * 100000; //     Converts back to DERO atmoic format
+
+      console.log(content.rate); //      It's very weird that for some reason DEROamount is very inconsistently deviated by a value of +-0.00000000004, smh...
+
+      console.log(content);
+      console.log(DEROamount);
+      DEROPrice = DEROamount;
+    }).catch(err => {
+      alert('🌐 Something went wrong while getting current exchange rates for DERO, Please try again later.');
+      console.log(err);
+    });
+  };
+
+  USDtoDERO();
   console.log('Bridging...');
   const deroBridgeApiRef = react__WEBPACK_IMPORTED_MODULE_2___default().useRef();
   const [bridgeInitText, setBridgeInitText] = react__WEBPACK_IMPORTED_MODULE_2___default().useState('');
@@ -504,135 +549,95 @@ const Gateway = props => {
     if (err) alert(err.message);else alert('Wallet Token Balance 🪙: ' + res.result.balance / 100000 + ' Tokens');
   }, []);
   const transfer = react__WEBPACK_IMPORTED_MODULE_2___default().useCallback(async () => {
+    console.log(DEROPrice);
+
     if (attributes.isDirectTransfer == 'on') {
-      let exchangeData = USDtoDERO();
-
-      if (exchangeData != null || exchangeData == undefined) {
-        const deroBridgeApi = deroBridgeApiRef.current;
-        const [err, res] = await (0,await_to_js__WEBPACK_IMPORTED_MODULE_4__["default"])(deroBridgeApi.wallet('start-transfer', {
-          //Direct Transfer
-          scid: '0000000000000000000000000000000000000000000000000000000000000000',
-          destination: attributes.destinationWalletAddress,
-          amount: exchangeData
-        })).then(res => {
-          console.log(res);
-          console.log(res[1].data.result.txid);
-          console.log(res[1].data.result.txid != '');
-
-          if (res[1].data.result.txid != '') {
-            alert('Purchase Completed ✅');
-            (0,_completePurchase__WEBPACK_IMPORTED_MODULE_5__.completePurchase)(attributes.courseID, attributes.user_id).then(response => {
-              console.log(response);
-            }).catch(error => {
-              alert(error);
-            });
-          }
-        }).catch(err => {
-          console.log(err);
-          alert('Transact Failed 🌐, Check Console for more details.');
-        });
-      }
-    } else if (!isCustom && attributes.isDirectTransfer == 'off') {
-      let exchangeData = USDtoDERO();
-
-      if (exchangeData != null || exchangeData == undefined) {
-        const deroBridgeApi = deroBridgeApiRef.current;
-        const [err, res] = await (0,await_to_js__WEBPACK_IMPORTED_MODULE_4__["default"])(deroBridgeApi.wallet('start-transfer', {
-          // DERO SCID Transfer
-          scid: attributes.DSCID,
-          destination: attributes.destinationWalletAddress,
-          amount: exchangeData
-        })).then(res => {
-          console.log(res);
-          console.log(res[1].data.result.txid);
-          console.log(res[1].data.result.txid != '');
-
-          if (res[1].data.result.txid != '') {
-            alert('Purchase Completed ✅');
-            (0,_completePurchase__WEBPACK_IMPORTED_MODULE_5__.completePurchase)(attributes.courseID, attributes.user_id).then(response => {
-              console.log(response);
-            }).catch(error => {
-              alert(error);
-            });
-          }
-        }).catch(err => {
-          console.log(err);
-          alert('Transact Failed 🌐, Check Console for more details.');
-        });
-      }
-    } else if (isCustom && attributes.isDirectTransfer == 'off') {
       const deroBridgeApi = deroBridgeApiRef.current;
       const [err, res] = await (0,await_to_js__WEBPACK_IMPORTED_MODULE_4__["default"])(deroBridgeApi.wallet('start-transfer', {
-        //Token Custom Smart Contract
-        scid: attributes.TSCID,
-        destination: attributes.destinationWalletAddress,
-        amount: attributes.tokenAmount
+        //Direct Transfer
+        transfers: [{
+          destination: attributes.destinationWalletAddress,
+          amount: DEROPrice,
+          burn: 0
+        }]
       })).then(res => {
         console.log(res);
         console.log(res[1].data.result.txid);
         console.log(res[1].data.result.txid != '');
 
         if (res[1].data.result.txid != '') {
-          alert('Purchase Completed ✅');
           (0,_completePurchase__WEBPACK_IMPORTED_MODULE_5__.completePurchase)(attributes.courseID, attributes.user_id).then(response => {
             console.log(response);
-          }).catch(error => {
-            alert(error);
           });
+          alert('Purchase Completed ✅');
+          setTimeout(() => {
+            console.log('Refreshing...');
+            window.location.reload();
+          }, 3000);
         }
       }).catch(err => {
         console.log(err);
         alert('Transact Failed 🌐, Check Console for more details.');
       });
+    } else if (!isCustom && attributes.isDirectTransfer == 'off') {
+      /*
+      const deroBridgeApi = deroBridgeApiRef.current;
+      const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { // DERO SCID Transfer
+        scid: attributes.DSCID,
+        destination: attributes.destinationWalletAddress,
+        amount: DEROPrice,
+      }))
+      .then(res => {
+          console.log(res);
+          console.log(res[1].data.result.txid);
+          console.log(res[1].data.result.txid != '');
+          if(res[1].data.result.txid != ''){
+              completePurchase(attributes.courseID, attributes.user_id)
+              .then(response => {
+                  console.log(response);
+              });
+              alert('Purchase Completed ✅');
+              setTimeout(() => {
+                  console.log('Refreshing...');
+                  window.location.reload();
+              }, 3000);
+          }
+      })
+      .catch(err => {
+          console.log(err);
+          alert('Transact Failed 🌐, Check Console for more details.');
+      });
+      */
+    } else if (isCustom && attributes.isDirectTransfer == 'off') {
+      /*
+      const deroBridgeApi = deroBridgeApiRef.current;
+      const [err, res] = await to(deroBridgeApi.wallet('start-transfer', { //Token Custom Smart Contract
+        scid: attributes.TSCID,
+        destination: attributes.destinationWalletAddress,
+        amount: attributes.tokenAmount,
+      }))
+      .then(res => {
+          console.log(res);
+          console.log(res[1].data.result.txid);
+          console.log(res[1].data.result.txid != '');
+          if(res[1].data.result.txid != ''){
+              completePurchase(attributes.courseID, attributes.user_id)
+              .then(response => {
+                  console.log(response);
+              });
+              alert('Purchase Completed ✅');
+              setTimeout(() => {
+                  console.log('Refreshing...');
+                  window.location.reload();
+              }, 3000);
+          }
+      })
+      .catch(err => {
+          console.log(err);
+          alert('Transact Failed 🌐, Check Console for more details.');
+      });*/
     }
   }, []);
-
-  const USDtoDERO = () => {
-    let myAPIKey;
-
-    if (attributes.APIKey == undefined || attributes.APIKey == '') {
-      //Default API Key
-      myAPIKey = 'c8573f42-e797-43e9-811d-07effb255ad8';
-    } else {
-      myAPIKey = attributes.APIKey;
-    }
-
-    var rawResponse;
-    fetch("https://api.livecoinwatch.com/coins/single", {
-      body: "{\"currency\":\"USD\",\"code\":\"DERO\",\"meta\":false}",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Api-Key": myAPIKey
-      },
-      method: "POST"
-    }).then(res => res.json()).then(data => {
-      rawResponse = data;
-      console.log(rawResponse);
-      console.log(rawResponse);
-      const content = rawResponse;
-      let currentRate = content.rate;
-      console.log(content);
-      console.log(currentRate);
-      let DEROamount = attributes.USDamount * (1 / currentRate); //   Converts USD Amount to DERO Amount based upon current rate
-
-      DEROamount = DEROamount.toFixed(5); //    Uses 5 Atomic Unit Precision for DERO Amount
-
-      DEROamount = parseFloat(DEROamount) * 100000; //     Converts back to DERO atmoic format
-
-      console.log(myAPIKey);
-      console.log(content.rate);
-      console.log(content);
-      console.log(DEROamount);
-      return DEROamount;
-    }).catch(err => {
-      alert('🌐 Something went wrong while getting current exchange rates for DERO, Please try again later.');
-      console.log(err);
-    });
-    return null; // Null Value is checked on the transfer function, If null it gets discarded
-  };
-
-  let test = USDtoDERO();
-  console.log(test);
   console.log('Is Direct Transfer: ' + attributes.isDirectTransfer);
   console.log(attributes.isDirectTransfer == 'on');
   console.log(attributes.isDirectTransfer);
