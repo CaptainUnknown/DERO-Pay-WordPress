@@ -9,8 +9,7 @@
     font-size: 1em;
     border: 6px solid #12c867;
     border-radius: 4px;
-    background-color: #091119;
-    
+    background-color: #091119;    
 
     h3 {
         text-align: center;
@@ -30,5 +29,11 @@
         border: none;
         border-bottom: 3px solid #9c9c9c;
         border-radius: 0px;
-    } 
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
 }
