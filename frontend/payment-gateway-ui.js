@@ -32,7 +32,7 @@ const Gateway = (props) => {
     else if(attributes.TSCID == ''){
         isCustom = false;
     }
-    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.isDirectTransfer == 'on'){
+    else if(attributes.DSCID == '' && attributes.TSCID == '' && attributes.isDirectTransfer == 'off'){
         return <>
         <div className="payBlock">
             <p>❌ Missing Smart Contract ID, Gateway needs a contract to function, if direct transfer is disabled.</p>
