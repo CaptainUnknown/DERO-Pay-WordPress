@@ -31,6 +31,32 @@
         border-radius: 0px;
     }
 
+    select {
+        border: 0px;
+    }
+
+    #preset {
+        font-family: 'Archivo';
+        font-size: 1rem;
+        color: #d0d0d0;
+        padding: 5px;
+        margin-left: 2vw;
+        margin-bottom: 16px;
+        background: transparent;
+        border-bottom: 3px solid #9c9c9c;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        background-color: #122333;
+        
+        option {
+            font-family: 'Archivo';
+            font-size: 1rem;
+            background-color: #122333;
+            border-radius: 0px;
+        }
+    }
+    
+
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
         -webkit-appearance: none; 
