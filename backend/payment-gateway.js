@@ -9,6 +9,10 @@ const EditComponent = (props) => {
     const [transferOptionsVisibility, setTransferOptionsVisibility] = useState(false);
 
 
+    const transferMethod = (event) => {
+        props.setAttributes({transferMethod: event.target.value});
+        console.log(event.target.value);
+    }
     const updateTSCID = (event) => {
         props.setAttributes({TSCID: event.target.value});
     }
@@ -24,14 +28,21 @@ const EditComponent = (props) => {
     const updateAPIKey = (event) => {
         props.setAttributes({APIKey: event.target.value});
     }
-    const updateIsDirectTransfer = (event) => {
-        props.setAttributes({isDirectTransfer: event.target.value});
-    }
     const updateCourseID = (event) => {
         props.setAttributes({courseID: event.target.value});
     }
     const updateDestinationWalletAddress = (event) => {
         props.setAttributes({destinationWalletAddress: event.target.value});
+    }
+    
+    //Payment Options
+    const setActionOptionsVisibility = (events) => {
+        if(event.target.value == "shopify"){
+        }
+        if(event.target.value == "learnDash"){
+        }
+        if(event.target.value == "customEP"){
+        }
     }
 
     //Actions
@@ -84,8 +95,8 @@ const EditComponent = (props) => {
     }
 
     //Payment Options
-    const setPaymentOptionsVisibility = (events) => {
-        console.log('Visibility is: ' + tokenOptionsVisibility);
+    const setPaymentOptionsVisibility = (event) => {
+        transferMethod(event);
         if(event.target.value == "ctsc"){
             setTokenOptionsVisibility(true);
             setDeroOptionsVisibility(false);
@@ -105,11 +116,11 @@ const EditComponent = (props) => {
 
     return (
         <div className="configurationBlock">
-            <h3> DERO Payment Gateway Configuration 🔧</h3>         
+            <h3> DERO Payment Gateway Configuration 🔧</h3>
 
+            {/* ✅ Action Options ✅ */}
             <p>Preset:</p>
-            
-            <select id="preset">
+            <select id="preset" onChange={setActionOptionsVisibility}>
                 <option value="" disabled selected>Select Preset</option>
                 <option value="shopify" >Shopify</option>
                 <option value="learnDash">LearnDash</option>
@@ -121,6 +132,7 @@ const EditComponent = (props) => {
 
 
 
+            {/* 🪙 Payment Options 🪙 */}
             <p>Payment option: </p>
             <select id="preset" onChange={setPaymentOptionsVisibility}>
                 <option value="" disabled selected>Select Payment Option</option>
@@ -129,26 +141,49 @@ const EditComponent = (props) => {
                 <option value="dt">Direct Transfer</option>
             </select>
 
-
             <div id="tokenSC" style={{ display: tokenOptionsVisibility ? "inline-flex" : "none" }}>
-                <p>Token Payment Smart Contract 📃: <input type='text' id='TSCID' value={props.attributes.TSCID} placeholder='Token SCID' onChange={updateTSCID}/><br/><br/></p>
-                <p>Custom Token Price 🪙: <input type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/></p>
-                {/* More Options Here */}
+                <p>
+                    Token Payment Smart Contract 📃: 
+                    <input data-tip="Smart Contract ID to be invoked for custom payment contract with your own Token." type='text' id='TSCID' value={props.attributes.TSCID} placeholder='Token SCID' onChange={updateTSCID}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    Custom Token Price 🪙: 
+                    <input data-tip="The amount to be transferred when Token SCID is invoked." type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/>
+                    <ReactTooltip />
+                </p>
             </div>
-
             <div id="deroSC" style={{ display: deroOptionsVisibility ? "inline-flex" : "none" }}>
-                <p>DERO Payment Smart Contract 📃: <input type='text' id='DSCID' value={props.attributes.DSCID} placeholder='DERO SCID' onChange={updateDSCID}/><br/><br/></p>
-                <p>USD Price 💲: <input type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/></p>
-                {/* More Options Here */}
+                <p>
+                    DERO Payment Smart Contract 📃: 
+                    <input data-tip="Smart Contract ID to be invoked for custom payment contract with DERO." type='text' id='DSCID' value={props.attributes.DSCID} placeholder='DERO SCID' onChange={updateDSCID}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    USD Price 💲: 
+                    <input data-tip="The amount to be transferred (in USD), Plugin automatically interprets the amount in DERO with fixed precision to 5 atomic units." type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
+                    <ReactTooltip />
+                </p>
             </div>
             <div id="directTransfer" style={{ display: transferOptionsVisibility ? "inline-flex" : "none"}}>
-                <p>Destination Wallet Address 📇: <input type='text' id='destinationWalletAddress' value={props.attributes.destinationWalletAddress} placeholder='deroqyXXXX' onChange={updateDestinationWalletAddress}/><br/><br/></p>
-                <p>USD Price 💲: <input type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/></p>
-                {/* More Options Here */}
+                <p>
+                    Destination Wallet Address 📇: 
+                    <input data-tip="Destination Wallet Address for the transfer. You'll recieve the DERO in this Wallet." type='text' id='destinationWalletAddress' value={props.attributes.destinationWalletAddress} placeholder='deroqyXXXX' onChange={updateDestinationWalletAddress}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    USD Price 💲: 
+                    <input data-tip="The amount to be transferred (in USD), Plugin automatically interprets the amount in DERO with fixed precision to 5 atomic units." type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
+                    <ReactTooltip />
+                </p>
             </div>
 
 
-            <p>Livecoinwatch.com API Key (Optional) 🗝️: <input type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/></p>
+            <p>
+                Livecoinwatch.com API Key 🗝️: 
+                <input data-tip="This field is optional. So, if left empty will fall back to the default key." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
+                <ReactTooltip />
+            </p>
         </div>
     )
 }
@@ -158,13 +193,7 @@ registerBlockType("dero/payment-gateway", {
     icon: 'money-alt',
     category: "common",
     attributes: {
-        TSCID: {type: 'string'},
-        tokenAmount: {type: 'integer'},
-        DSCID: {type: 'string'},
-        USDamount: {type: 'integer'},
         APIKey: {type: 'string'},
-        isDirectTransfer: {type: 'boolean'},
-        destinationWalletAddress: {type: 'string'},
 
         /* Shopify */
         /* LearnDash */
@@ -172,9 +201,13 @@ registerBlockType("dero/payment-gateway", {
         courseSiteURL: {type: 'string'},
         /* CustomEndPoint */
 
-        /* DERO Smart Contract */
-        /* Token Smart Contract */
-        /* Direct Transfer */
+        /* Payment Option */
+        transferMethod: {type: 'string'},
+        TSCID: {type: 'string'},
+        tokenAmount: {type: 'integer'},
+        DSCID: {type: 'string'},
+        USDamount: {type: 'integer'},
+        destinationWalletAddress: {type: 'string'},
     },
     edit: EditComponent,
     save: function() {
