@@ -4,6 +4,11 @@ import { useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 
 const EditComponent = (props) => {
+    const [shopifyOptionsVisibility, setShopifyOptionsVisibility] = useState(false);
+    const [learnDashOptionsVisibility, setLearnDashOptionsVisibility] = useState(false);
+    const [endPointOptionsVisibility, setEndPointOptionsVisibility] = useState(false);
+        const [endPointOptionsBodyOptionsVisibility, setEndPointOptionsBodyOptionsVisibility] = useState(false);
+
     const [tokenOptionsVisibility, setTokenOptionsVisibility] = useState(false);
     const [deroOptionsVisibility, setDeroOptionsVisibility] = useState(false);
     const [transferOptionsVisibility, setTransferOptionsVisibility] = useState(false);
@@ -34,65 +39,55 @@ const EditComponent = (props) => {
     const updateDestinationWalletAddress = (event) => {
         props.setAttributes({destinationWalletAddress: event.target.value});
     }
+
+    const updateCEPURL = (event) => {
+        props.setAttributes({CEPURL: event.target.value});
+    }
+    const updateCEPHeader = (event) => {
+        props.setAttributes({CEPHeader: event.target.value});
+    }
+    const updateCEPBody = (event) => {
+        props.setAttributes({CEPBody: event.target.value});
+    }
     
-    //Payment Options
-    const setActionOptionsVisibility = (events) => {
+    //Action Options
+    const setActionOptionsVisibility = (event) => {
         if(event.target.value == "shopify"){
+            setShopifyOptionsVisibility(true);
+            setLearnDashOptionsVisibility(false);
+            setEndPointOptionsVisibility(false);
         }
         if(event.target.value == "learnDash"){
+            setShopifyOptionsVisibility(false);
+            setLearnDashOptionsVisibility(true);
+            setEndPointOptionsVisibility(false);
         }
         if(event.target.value == "customEP"){
+            setShopifyOptionsVisibility(false);
+            setLearnDashOptionsVisibility(false);
+            setEndPointOptionsVisibility(true);
         }
     }
 
-    //Actions
-    const learnDash = () => {
-        return (
-            <>
-                <p>Course ID 🔢: <input type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/></p>
-            </>
-        )
-    }
-    const shopify = () => {
-        return (
-            <>
-                <p>Course ID 🔢: <input type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/></p>
-                {/* More Options Here */}
-            </>
-        )
-    }
-    const endpoint = () => {
-        const get = () => {
-            updateCEPMethod('GET');
+        //EndPoint Options
+        const endpointOptionsFetchMethodOptionsVisibility = (event) => {
+            if(event.target.value == "get"){
+                setEndPointOptionsBodyOptionsVisibility(false);
+                updateCEPMethod('GET');
+            }
+            if(event.target.value == "post"){
+                setEndPointOptionsBodyOptionsVisibility(true);
+                updateCEPMethod("POST");
+            }
+            if(event.target.value == "put"){
+                setEndPointOptionsBodyOptionsVisibility(true);
+                updateCEPMethod('PUT');
+            }
+            if(event.target.value == "delete"){
+                setEndPointOptionsBodyOptionsVisibility(false);
+                updateCEPMethod('DELETE');
+            }
         }
-        const post = () => {
-            updateCEPMethod("POST");
-            return(
-                <p>Body 📄: <input type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/></p>
-            )
-        }
-        const put = () => {
-            updateCEPMethod('PUT');
-        }
-        const deleteMethod = () => {
-            updateCEPMethod('DELETE');
-        }
-        return (
-            <>
-                <p>Preset:</p>
-                <select id="preset">
-                    <option value="" disabled selected>Select Fetch Method</option>
-                    <option value="delete" onChange={get}>GET</option>
-                    <option value="post" onChange={post}>POST</option>
-                    <option value="put" onChange={put}>PUT</option>
-                    <option value="delete" onChange={deleteMethod}>DELETE</option>
-                </select>
-                <p>❕You can use current user ID variable by passing ${userID} in URL</p>
-                <p>URL 🔗: <input type='text' id='CEPURL' value={props.attributes.CEPURL} placeholder='www.yoursite.com/wp-json/' onChange={updateCEPURL}/><br/><br/></p>
-                <p>Header 🗝️: <input type='text' id='CEPHeader' value={props.attributes.CEPHeader} placeholder='non-stringified header' onChange={updateCEPHeader}/><br/><br/></p>
-            </>
-        )
-    }
 
     //Payment Options
     const setPaymentOptionsVisibility = (event) => {
@@ -126,9 +121,37 @@ const EditComponent = (props) => {
                 <option value="learnDash">LearnDash</option>
                 <option value="customEP">Custom Endpoint</option>
             </select>
-            {/*data-tip="tip here"
-            <ReactTooltip />*/}
-
+            {/* Shopify */}
+            <div id="shopify" style={{ display: shopifyOptionsVisibility ? "inline-flex" : "none" }}>
+                <p> {/* Add Shopify Options */}
+                    Store URL 🔗: 
+                    <input type='number' id='courseID' value={props.attributes.courseID} placeholder='www.yoursite.com/SHOPIFY-REST/' onChange={updateCourseID}/><br/><br/>
+                </p>
+            </div>
+            {/* LearnDash */}
+            <div id="learnDash" style={{ display: learnDashOptionsVisibility ? "inline-flex" : "none" }}>
+                <p>
+                    Course ID 🔢: 
+                    <input type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/>
+                    </p>
+            </div>
+            {/* Custom EndPoint */}
+            <div id="customEndPoint" style={{ display: endPointOptionsVisibility ? "inline-flex" : "none" }}>
+                <p>Endpoint Preset:</p>
+                <select id="preset" onChange={endpointOptionsFetchMethodOptionsVisibility}>
+                    <option value="" disabled selected>Select Fetch Method</option>
+                    <option value="delete">GET</option>
+                    <option value="post">POST</option>
+                    <option value="put">PUT</option>
+                    <option value="delete">DELETE</option>
+                </select>
+                {/* ❕You can use current user ID variable by passing ${userID} in URL */}
+                <p>URL 🔗: <input type='text' id='CEPURL' value={props.attributes.CEPURL} placeholder='www.yoursite.com/wp-json/' onChange={updateCEPURL}/><br/><br/></p>
+                <p>Header 🗝️: <input type='text' id='CEPHeader' value={props.attributes.CEPHeader} placeholder='non-stringified header' onChange={updateCEPHeader}/><br/><br/></p>
+                <div id="endpointBody" style={{ display: endPointOptionsBodyOptionsVisibility ? "inline-flex" : "none" }}>
+                    <p>Body 📄: <input type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/></p>
+                </div>
+            </div>
 
 
 
@@ -140,7 +163,7 @@ const EditComponent = (props) => {
                 <option value="cdsc">Custom DERO SC</option>
                 <option value="dt">Direct Transfer</option>
             </select>
-
+            {/* Token Smart Contract */}
             <div id="tokenSC" style={{ display: tokenOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
                     Token Payment Smart Contract 📃: 
@@ -153,6 +176,7 @@ const EditComponent = (props) => {
                     <ReactTooltip />
                 </p>
             </div>
+            {/* Dero Smart Contract */}
             <div id="deroSC" style={{ display: deroOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
                     DERO Payment Smart Contract 📃: 
@@ -165,6 +189,7 @@ const EditComponent = (props) => {
                     <ReactTooltip />
                 </p>
             </div>
+            {/* Direct transfer */}
             <div id="directTransfer" style={{ display: transferOptionsVisibility ? "inline-flex" : "none"}}>
                 <p>
                     Destination Wallet Address 📇: 
@@ -177,6 +202,7 @@ const EditComponent = (props) => {
                     <ReactTooltip />
                 </p>
             </div>
+
 
 
             <p>
@@ -200,6 +226,9 @@ registerBlockType("dero/payment-gateway", {
         courseID: {type: 'integer'},
         courseSiteURL: {type: 'string'},
         /* CustomEndPoint */
+        CEPURL: {type: 'string'},
+        CEPHeader: {type: 'string'},
+        CEPBody: {type: 'string'},
 
         /* Payment Option */
         transferMethod: {type: 'string'},
