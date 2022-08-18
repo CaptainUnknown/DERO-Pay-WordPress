@@ -16,7 +16,9 @@
         font-family: 'Archivo';
         font-size: 2em;
     }
-    
+    div{
+        flex-direction: column;
+    }
     p {
         margin: 0;
         padding-left: 2vw;
@@ -30,7 +32,6 @@
         border-bottom: 3px solid #9c9c9c;
         border-radius: 0px;
     }
-
     select {
         border: 0px;
     }
@@ -40,6 +41,7 @@
         font-size: 1rem;
         color: #d0d0d0;
         padding: 5px;
+        padding-left: 1.2vw;
         margin-left: 2vw;
         margin-bottom: 16px;
         background: transparent;
@@ -53,9 +55,9 @@
             font-size: 1rem;
             background-color: #122333;
             border-radius: 0px;
+            height: 80px;
         }
     }
-    
 
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
