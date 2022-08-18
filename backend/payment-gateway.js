@@ -14,6 +14,31 @@ const EditComponent = (props) => {
     const [transferOptionsVisibility, setTransferOptionsVisibility] = useState(false);
 
 
+    //Shopify
+    const updateShopifyStoreURL = (event) => {
+        props.setAttributes({shopifyStoreURL: event.target.value});
+    }
+
+    //LearnDash
+    const updateCourseID = (event) => {
+        props.setAttributes({courseID: event.target.value});
+    }
+    const updateCourseSite = (event) => {
+        props.setAttributes({courseSite: event.target.value});
+    }
+
+    //Custom EndPoint
+    const updateCEPURL = (event) => {
+        props.setAttributes({CEPURL: event.target.value});
+    }
+    const updateCEPHeader = (event) => {
+        props.setAttributes({CEPHeader: event.target.value});
+    }
+    const updateCEPBody = (event) => {
+        props.setAttributes({CEPBody: event.target.value});
+    }
+
+    //Payment
     const transferMethod = (event) => {
         props.setAttributes({transferMethod: event.target.value});
         console.log(event.target.value);
@@ -30,24 +55,13 @@ const EditComponent = (props) => {
     const updateAmount = (event) => {
         props.setAttributes({USDamount: event.target.value});
     }
-    const updateAPIKey = (event) => {
-        props.setAttributes({APIKey: event.target.value});
-    }
-    const updateCourseID = (event) => {
-        props.setAttributes({courseID: event.target.value});
-    }
     const updateDestinationWalletAddress = (event) => {
         props.setAttributes({destinationWalletAddress: event.target.value});
     }
 
-    const updateCEPURL = (event) => {
-        props.setAttributes({CEPURL: event.target.value});
-    }
-    const updateCEPHeader = (event) => {
-        props.setAttributes({CEPHeader: event.target.value});
-    }
-    const updateCEPBody = (event) => {
-        props.setAttributes({CEPBody: event.target.value});
+    //API Key
+    const updateAPIKey = (event) => {
+        props.setAttributes({APIKey: event.target.value});
     }
     
     //Action Options
@@ -125,15 +139,21 @@ const EditComponent = (props) => {
             <div id="shopify" style={{ display: shopifyOptionsVisibility ? "inline-flex" : "none" }}>
                 <p> {/* Add Shopify Options */}
                     Store URL 🔗: 
-                    <input type='number' id='courseID' value={props.attributes.courseID} placeholder='www.yoursite.com/SHOPIFY-REST/' onChange={updateCourseID}/><br/><br/>
+                    <input type='number' id='shopifyStoreURL' value={props.attributes.shopifyStoreURL} placeholder='www.yoursite.com/SHOPIFY-REST/' onChange={updateShopifyStoreURL}/><br/><br/>
                 </p>
             </div>
             {/* LearnDash */}
             <div id="learnDash" style={{ display: learnDashOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
                     Course ID 🔢: 
-                    <input type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/>
-                    </p>
+                    <input data-tip="❕ ID of the current course. Course ID can be checked by following LearnDashs' this FAQ Guide. Read more at this Plugins' Github Repo." type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    Course Site Domain 🌐: 
+                    <input data-tip="❕ Add the domain of your site, where courses are hosted at." type='string' id='courseSite' value={props.attributes.courseSite} placeholder='www.example.com' onChange={updateCourseSite}/><br/><br/>
+                    <ReactTooltip />
+                </p>
             </div>
             {/* Custom EndPoint */}
             <div id="customEndPoint" style={{ display: endPointOptionsVisibility ? "inline-flex" : "none" }}>
@@ -146,10 +166,22 @@ const EditComponent = (props) => {
                     <option value="delete">DELETE</option>
                 </select>
                 {/* ❕You can use current user ID variable by passing ${userID} in URL */}
-                <p>URL 🔗: <input type='text' id='CEPURL' value={props.attributes.CEPURL} placeholder='www.yoursite.com/wp-json/' onChange={updateCEPURL}/><br/><br/></p>
-                <p>Header 🗝️: <input type='text' id='CEPHeader' value={props.attributes.CEPHeader} placeholder='non-stringified header' onChange={updateCEPHeader}/><br/><br/></p>
+                <p>
+                    URL 🔗: 
+                    <input data-tip="❕ URL of the Rest EndPoint." type='text' id='CEPURL' value={props.attributes.CEPURL} placeholder='www.yoursite.com/wp-json/' onChange={updateCEPURL}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    Header 🗝️: 
+                    <input data-tip="❕ Add a non-stringified header (if required)." type='text' id='CEPHeader' value={props.attributes.CEPHeader} placeholder='non-stringified header' onChange={updateCEPHeader}/><br/><br/>
+                    <ReactTooltip />
+                </p>
                 <div id="endpointBody" style={{ display: endPointOptionsBodyOptionsVisibility ? "inline-flex" : "none" }}>
-                    <p>Body 📄: <input type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/></p>
+                    <p>
+                        Body 📄: 
+                        <input data-tip="❕ Add a non-stringified body (if required)." type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/>
+                        <ReactTooltip />
+                    </p>
                 </div>
             </div>
 
@@ -167,12 +199,12 @@ const EditComponent = (props) => {
             <div id="tokenSC" style={{ display: tokenOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
                     Token Payment Smart Contract 📃: 
-                    <input data-tip="Smart Contract ID to be invoked for custom payment contract with your own Token." type='text' id='TSCID' value={props.attributes.TSCID} placeholder='Token SCID' onChange={updateTSCID}/><br/><br/>
+                    <input data-tip="❕ Smart Contract ID to be invoked for custom payment contract with your own Token." type='text' id='TSCID' value={props.attributes.TSCID} placeholder='Token SCID' onChange={updateTSCID}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <p>
                     Custom Token Price 🪙: 
-                    <input data-tip="The amount to be transferred when Token SCID is invoked." type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/>
+                    <input data-tip="❕ The amount to be transferred when Token SCID is invoked." type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/>
                     <ReactTooltip />
                 </p>
             </div>
@@ -180,12 +212,12 @@ const EditComponent = (props) => {
             <div id="deroSC" style={{ display: deroOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
                     DERO Payment Smart Contract 📃: 
-                    <input data-tip="Smart Contract ID to be invoked for custom payment contract with DERO." type='text' id='DSCID' value={props.attributes.DSCID} placeholder='DERO SCID' onChange={updateDSCID}/><br/><br/>
+                    <input data-tip="❕ Smart Contract ID to be invoked for custom payment contract with DERO." type='text' id='DSCID' value={props.attributes.DSCID} placeholder='DERO SCID' onChange={updateDSCID}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <p>
                     USD Price 💲: 
-                    <input data-tip="The amount to be transferred (in USD), Plugin automatically interprets the amount in DERO with fixed precision to 5 atomic units." type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
+                    <input data-tip="❕ The amount to be transferred (in USD), Plugin automatically interprets the amount in DERO with fixed precision to 5 atomic units." type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
                     <ReactTooltip />
                 </p>
             </div>
@@ -193,12 +225,12 @@ const EditComponent = (props) => {
             <div id="directTransfer" style={{ display: transferOptionsVisibility ? "inline-flex" : "none"}}>
                 <p>
                     Destination Wallet Address 📇: 
-                    <input data-tip="Destination Wallet Address for the transfer. You'll recieve the DERO in this Wallet." type='text' id='destinationWalletAddress' value={props.attributes.destinationWalletAddress} placeholder='deroqyXXXX' onChange={updateDestinationWalletAddress}/><br/><br/>
+                    <input data-tip="❕ Destination Wallet Address for the transfer. You'll recieve the DERO in this Wallet." type='text' id='destinationWalletAddress' value={props.attributes.destinationWalletAddress} placeholder='deroqyXXXX' onChange={updateDestinationWalletAddress}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <p>
                     USD Price 💲: 
-                    <input data-tip="The amount to be transferred (in USD), Plugin automatically interprets the amount in DERO with fixed precision to 5 atomic units." type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
+                    <input data-tip="❕ The amount to be transferred (in USD), Plugin automatically interprets the amount in DERO with fixed precision to 5 atomic units." type='number' id='amount' value={props.attributes.USDamount} placeholder='$100' onChange={updateAmount}/><br/><br/>
                     <ReactTooltip />
                 </p>
             </div>
@@ -207,7 +239,7 @@ const EditComponent = (props) => {
 
             <p>
                 Livecoinwatch.com API Key 🗝️: 
-                <input data-tip="This field is optional. So, if left empty will fall back to the default key." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
+                <input data-tip="❕ This field is optional. So, if left empty will fall back to the default key." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
                 <ReactTooltip />
             </p>
         </div>
@@ -222,9 +254,12 @@ registerBlockType("dero/payment-gateway", {
         APIKey: {type: 'string'},
 
         /* Shopify */
+        shopifyStoreURL: {type: 'string'},
+
         /* LearnDash */
         courseID: {type: 'integer'},
         courseSiteURL: {type: 'string'},
+        
         /* CustomEndPoint */
         CEPURL: {type: 'string'},
         CEPHeader: {type: 'string'},
