@@ -62,7 +62,6 @@ const Gateway = (props) => {
         await fetch(`https://templisaquaria.com/wp-json/ldlms/v1/sfwd-courses/${attributes.courseID}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             if (data.date == undefined){
                 isCourseIDValid = false;
             }
@@ -139,14 +138,9 @@ const Gateway = (props) => {
         .then(res => res.json())
         .then(data => {
             rawResponse = data;
-            console.log(rawResponse);
-            console.log(rawResponse);
 
             const content = rawResponse;
             let currentRate = content.rate;
-    
-            console.log(content);
-            console.log(currentRate);
             
             let DEROamount = attributes.USDamount * ( 1 / currentRate );   //   Converts USD Amount to DERO Amount based upon current rate
             DEROamount = DEROamount.toFixed(5);                           //    Uses 5 Atomic Unit Precision for DERO Amount
@@ -217,9 +211,6 @@ const Gateway = (props) => {
                 }]
             }))
             .then(res => {
-                console.log(res);
-                console.log(res[1].data.result.txid);
-                console.log(res[1].data.result.txid != '');
                 if(res[1].data.result.txid != ''){
                     completePurchase(attributes.courseID, attributes.user_id)
                     .then(response => {
@@ -297,12 +288,7 @@ const Gateway = (props) => {
             });*/
         }
     }, []);
-
-    console.log('Is Direct Transfer: ' + attributes.isDirectTransfer);
-    console.log(attributes.isDirectTransfer == 'on');
-    console.log(attributes.isDirectTransfer);
-
-
+    
     let currency = 'USD';
     if (isCustom){
         currency = 'Tokens';
