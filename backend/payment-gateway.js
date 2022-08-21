@@ -7,16 +7,28 @@ const EditComponent = (props) => {
     const [shopifyOptionsVisibility, setShopifyOptionsVisibility] = useState(false);
     const [learnDashOptionsVisibility, setLearnDashOptionsVisibility] = useState(false);
     const [endPointOptionsVisibility, setEndPointOptionsVisibility] = useState(false);
-        const [endPointOptionsBodyOptionsVisibility, setEndPointOptionsBodyOptionsVisibility] = useState(false);
+    
+    const [endPointOptionsBodyOptionsVisibility, setEndPointOptionsBodyOptionsVisibility] = useState(false);
 
     const [tokenOptionsVisibility, setTokenOptionsVisibility] = useState(false);
     const [deroOptionsVisibility, setDeroOptionsVisibility] = useState(false);
     const [transferOptionsVisibility, setTransferOptionsVisibility] = useState(false);
-
+    
+    
+    // ==> PRESET:
+    const updateActionPreset = (event) => {
+        props.setAttributes({actionPreset: event.target.value});
+    }
 
     //Shopify
-    const updateShopifyStoreURL = (event) => {
-        props.setAttributes({shopifyStoreURL: event.target.value});
+    const updateShopifyStoreName = (event) => {
+        props.setAttributes({shopifyStoreName: event.target.value});
+    }
+    const updateShopifyAPIVersion = (event) => {
+        props.setAttributes({shopifyAPIVersion: event.target.value});
+    }
+    const updateShopifyAccessToken = (event) => {
+        props.setAttributes({shopifyAccessToken: event.target.value});
     }
 
     //LearnDash
@@ -38,23 +50,29 @@ const EditComponent = (props) => {
         props.setAttributes({CEPBody: event.target.value});
     }
 
-    //Payment
+    // ===> PAYMENT PRESET:
     const transferMethod = (event) => {
         props.setAttributes({transferMethod: event.target.value});
         console.log(event.target.value);
     }
+
+    //Token SC
     const updateTSCID = (event) => {
         props.setAttributes({TSCID: event.target.value});
     }
     const updateTokenAmount = (event) => {
         props.setAttributes({tokenAmount: event.target.value});
     }
+
+    //Dero SC
     const updateDSCID = (event) => {
         props.setAttributes({DSCID: event.target.value});
     }
     const updateAmount = (event) => {
         props.setAttributes({USDamount: event.target.value});
     }
+
+    //Direct Transfer
     const updateDestinationWalletAddress = (event) => {
         props.setAttributes({destinationWalletAddress: event.target.value});
     }
@@ -66,6 +84,7 @@ const EditComponent = (props) => {
     
     //Action Options
     const setActionOptionsVisibility = (event) => {
+        updateActionPreset(event);
         if(event.target.value == "shopify"){
             setShopifyOptionsVisibility(true);
             setLearnDashOptionsVisibility(false);
@@ -137,9 +156,17 @@ const EditComponent = (props) => {
             </select>
             {/* Shopify */}
             <div id="shopify" style={{ display: shopifyOptionsVisibility ? "inline-flex" : "none" }}>
-                <p> {/* Add Shopify Options */}
-                    Store URL 🔗: 
-                    <input type='number' id='shopifyStoreURL' value={props.attributes.shopifyStoreURL} placeholder='www.yoursite.com/SHOPIFY-REST/' onChange={updateShopifyStoreURL}/><br/><br/>
+                <p>
+                    Store Name 🛍️: 
+                    <input type='string' id='shopifyStoreName' value={props.attributes.shopifyStoreName} placeholder='myCoffeeShop' onChange={updateShopifyStoreName}/><br/><br/>
+                </p>
+                <p>
+                    API Version 💻: 
+                    <input type='string' id='shopifyAPIVersion' value={props.attributes.shopifyAPIVersion} placeholder='(Optional) Default: 2021-07' onChange={updateShopifyAPIVersion}/><br/><br/>
+                </p>
+                <p>
+                    Shopify Access Token 🗝️: 
+                    <input type='string' id='shopifyAccessToken' value={props.attributes.shopifyAccessToken} placeholder='Your Secret Access Token' onChange={updateShopifyAccessToken}/><br/><br/>
                 </p>
             </div>
             {/* LearnDash */}
@@ -179,7 +206,7 @@ const EditComponent = (props) => {
                 <div id="endpointBody" style={{ display: endPointOptionsBodyOptionsVisibility ? "inline-flex" : "none" }}>
                     <p>
                         Body 📄: 
-                        <input data-tip="❕ Add a non-stringified body (if required)." type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/>
+                        <input data-tip="❕ Add a non-stringified body." type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/>
                         <ReactTooltip />
                     </p>
                 </div>
@@ -251,10 +278,12 @@ registerBlockType("dero/payment-gateway", {
     icon: 'money-alt',
     category: "common",
     attributes: {
-        APIKey: {type: 'string'},
+        actionPreset: {type: 'string'},
 
         /* Shopify */
-        shopifyStoreURL: {type: 'string'},
+        shopifyStoreName: {type: 'string'},
+        shopifyAPIVersion: {type: 'string'},
+        shopifyAccessToken: {type: 'string'},
 
         /* LearnDash */
         courseID: {type: 'integer'},
@@ -265,13 +294,16 @@ registerBlockType("dero/payment-gateway", {
         CEPHeader: {type: 'string'},
         CEPBody: {type: 'string'},
 
-        /* Payment Option */
         transferMethod: {type: 'string'},
+
+        /* Payment Option */
         TSCID: {type: 'string'},
         tokenAmount: {type: 'integer'},
         DSCID: {type: 'string'},
         USDamount: {type: 'integer'},
         destinationWalletAddress: {type: 'string'},
+
+        APIKey: {type: 'string'},
     },
     edit: EditComponent,
     save: function() {
