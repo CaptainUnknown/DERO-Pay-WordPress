@@ -24,9 +24,6 @@ const EditComponent = (props) => {
     const updateShopifyStoreName = (event) => {
         props.setAttributes({shopifyStoreName: event.target.value});
     }
-    const updateShopifyAPIVersion = (event) => {
-        props.setAttributes({shopifyAPIVersion: event.target.value});
-    }
     const updateShopifyAccessToken = (event) => {
         props.setAttributes({shopifyAccessToken: event.target.value});
     }
@@ -40,6 +37,9 @@ const EditComponent = (props) => {
     }
 
     //Custom EndPoint
+    const updateFetchMethod = (event) => {
+        props.setAttributes({fetchMethod: event.target.value});
+    }
     const updateCEPURL = (event) => {
         props.setAttributes({CEPURL: event.target.value});
     }
@@ -53,7 +53,6 @@ const EditComponent = (props) => {
     // ===> PAYMENT PRESET:
     const transferMethod = (event) => {
         props.setAttributes({transferMethod: event.target.value});
-        console.log(event.target.value);
     }
 
     //Token SC
@@ -104,21 +103,18 @@ const EditComponent = (props) => {
 
         //EndPoint Options
         const endpointOptionsFetchMethodOptionsVisibility = (event) => {
-            if(event.target.value == "get"){
+            updateFetchMethod(event);
+            if(event.target.value == "GET"){
                 setEndPointOptionsBodyOptionsVisibility(false);
-                updateCEPMethod('GET');
             }
-            if(event.target.value == "post"){
+            if(event.target.value == "POST"){
                 setEndPointOptionsBodyOptionsVisibility(true);
-                updateCEPMethod("POST");
             }
-            if(event.target.value == "put"){
+            if(event.target.value == "PUT"){
                 setEndPointOptionsBodyOptionsVisibility(true);
-                updateCEPMethod('PUT');
             }
-            if(event.target.value == "delete"){
+            if(event.target.value == "DELETE"){
                 setEndPointOptionsBodyOptionsVisibility(false);
-                updateCEPMethod('DELETE');
             }
         }
 
@@ -161,10 +157,6 @@ const EditComponent = (props) => {
                     <input type='string' id='shopifyStoreName' value={props.attributes.shopifyStoreName} placeholder='myCoffeeShop' onChange={updateShopifyStoreName}/><br/><br/>
                 </p>
                 <p>
-                    API Version 💻: 
-                    <input type='string' id='shopifyAPIVersion' value={props.attributes.shopifyAPIVersion} placeholder='(Optional) Default: 2021-07' onChange={updateShopifyAPIVersion}/><br/><br/>
-                </p>
-                <p>
                     Shopify Access Token 🗝️: 
                     <input type='string' id='shopifyAccessToken' value={props.attributes.shopifyAccessToken} placeholder='Your Secret Access Token' onChange={updateShopifyAccessToken}/><br/><br/>
                 </p>
@@ -184,13 +176,13 @@ const EditComponent = (props) => {
             </div>
             {/* Custom EndPoint */}
             <div id="customEndPoint" style={{ display: endPointOptionsVisibility ? "inline-flex" : "none" }}>
-                <p>Endpoint Preset:</p>
+                <p>Fetch Method:</p>
                 <select id="preset" onChange={endpointOptionsFetchMethodOptionsVisibility}>
                     <option value="" disabled selected>Select Fetch Method</option>
-                    <option value="delete">GET</option>
-                    <option value="post">POST</option>
-                    <option value="put">PUT</option>
-                    <option value="delete">DELETE</option>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
                 </select>
                 {/* ❕You can use current user ID variable by passing ${userID} in URL */}
                 <p>
@@ -266,7 +258,7 @@ const EditComponent = (props) => {
 
             <p>
                 Livecoinwatch.com API Key 🗝️: 
-                <input data-tip="❕ This field is optional. So, if left empty will fall back to the default key." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
+                <input data-tip="❕ This field is optional (But providing one is a good idea). But, if left empty will fall back to the default key." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
                 <ReactTooltip />
             </p>
         </div>
@@ -282,7 +274,6 @@ registerBlockType("dero/payment-gateway", {
 
         /* Shopify */
         shopifyStoreName: {type: 'string'},
-        shopifyAPIVersion: {type: 'string'},
         shopifyAccessToken: {type: 'string'},
 
         /* LearnDash */
@@ -290,6 +281,7 @@ registerBlockType("dero/payment-gateway", {
         courseSiteURL: {type: 'string'},
         
         /* CustomEndPoint */
+        fetchMethod: {type: 'string'},
         CEPURL: {type: 'string'},
         CEPHeader: {type: 'string'},
         CEPBody: {type: 'string'},
