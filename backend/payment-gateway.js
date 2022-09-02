@@ -63,6 +63,14 @@ const EditComponent = (props) => {
         props.setAttributes({tokenAmount: event.target.value});
     }
 
+    //Dero SC + Token SC
+    const updateSCRPC = (event) => {
+        props.setAttributes({SCRPC: event.target.value});
+    }
+    const updateRingSize = (event) => {
+        props.setAttributes({ringSize: event.target.value});
+    }
+
     //Dero SC
     const updateDSCID = (event) => {
         props.setAttributes({DSCID: event.target.value});
@@ -222,6 +230,16 @@ const EditComponent = (props) => {
                     <ReactTooltip />
                 </p>
                 <p>
+                    Smart Contract RPC ⚙️: 
+                    <input data-tip="❕ Smart Contract Required arguments (should be an array of object(s))." type='text' id='SCRPC' value={props.attributes.SCRPC} placeholder='SC RPC' onChange={updateSCRPC}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    Ring Size 🔶: 
+                    <input data-tip="❕ (Optional) Ring size refers to the total number of signers in a ring signature. (Level of anonymity)" type='number' id='RingSize' value={props.attributes.ringSize} placeholder='Ring size' onChange={updateRingSize}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
                     Custom Token Price 🪙: 
                     <input data-tip="❕ The amount to be transferred when Token SCID is invoked." type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/>
                     <ReactTooltip />
@@ -230,8 +248,18 @@ const EditComponent = (props) => {
             {/* Dero Smart Contract */}
             <div id="deroSC" style={{ display: deroOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
-                    DERO Payment Smart Contract 📃: 
+                    Smart Contract ID 📃: 
                     <input data-tip="❕ Smart Contract ID to be invoked for custom payment contract with DERO." type='text' id='DSCID' value={props.attributes.DSCID} placeholder='DERO SCID' onChange={updateDSCID}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    Smart Contract RPC ⚙️: 
+                    <input data-tip="❕ Smart Contract Required arguments (should be an array of object(s))." type='text' id='SCRPC' value={props.attributes.SCRPC} placeholder='SC RPC' onChange={updateSCRPC}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
+                    Ring Size 🔶: 
+                    <input data-tip="❕ (Optional) Ring size refers to the total number of signers in a ring signature. (Level of anonymity)" type='number' id='RingSize' value={props.attributes.ringSize} placeholder='Ring size' onChange={updateRingSize}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <p>
@@ -253,7 +281,6 @@ const EditComponent = (props) => {
                     <ReactTooltip />
                 </p>
             </div>
-
 
 
             <p>
@@ -291,10 +318,16 @@ registerBlockType("dero/payment-gateway", {
         /* Payment Option */
         TSCID: {type: 'string'},
         tokenAmount: {type: 'integer'},
+
         DSCID: {type: 'string'},
         USDamount: {type: 'integer'},
+
+        SCRPC: {type: 'string'},
+        RingSize: {type: 'integer'},
+
         destinationWalletAddress: {type: 'string'},
 
+        
         APIKey: {type: 'string'},
     },
     edit: EditComponent,
