@@ -40,7 +40,7 @@ class Block {
             wp_enqueue_script($this->name . '_ui_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.js", array('wp-element')); //Make sure to use double quotes after plugin_dir_url, single quotes won't use {$this->name}
             wp_enqueue_style($this->name . '_ui_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.css");
             
-            wp_enqueue_script($this->name . '_api_script', plugin_dir_url(__FILE__) . "build/bridgeAPI.js", array('wp-element')); //DERO Bridge API
+            wp_enqueue_script($this->name . '_rpc_script', plugin_dir_url(__FILE__) . "build/rpcCall.js", array('wp-element')); //RPC API
 
             wp_enqueue_script('completePurchase', 'build/completePurchase.js');
             wp_localize_script('completePurchase', 'purchaseData', [
