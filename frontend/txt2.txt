@@ -211,29 +211,13 @@ const Gateway = (props) => {
   }
   USDtoDERO();
 
+  //let options = { 'authenticator': userPass, 'method':'Echo', 'params':'["Hello", "World", "!"]' };
+  //rpcCall(options);
+
   //const getWalletBalance = async () => {
   //return 'Wallet Balance 📇: ' + res.data.result.balance / 100000 + ' DERO'
   //}
 
-  const transact = async () => {
-    console.log(DEROPrice);
-    if(attributes.isDirectTransfer == 'on'){
-      //let options = { 'authenticator': userPass, 'method':'Echo', 'params':'["Hello", "World", "!"]' };
-      //rpcCall(options);
-      //const res = await rpcCall({ ...options, method: 'DERO.Ping' })
-      //if {
-      //  (res.err) return Promise.reject(new Error(res.err))
-      //  console.log(err);
-      //  alert('Transact Failed 🌐, Check Console for more details.');
-      //} else {
-      //  completePurchase(attributes.courseID, attributes.user_id)
-      //  console.log(response);
-      //  setTxidVisibility(true);
-      //}
-    }
-    else if (!isCustom && attributes.isDirectTransfer == 'off'){
-    }
-  }
 
 
   let currency = 'USD';
@@ -243,6 +227,9 @@ const Gateway = (props) => {
   if (attributes.isDirectTransfer == 'on') {
     currency = 'USD';
   }
+  // onClick={setAuthenticatorVisibility(false)}
+  // onClick={setConfirmTxVisibility(false)}
+  // onClick={setTxidVisibility(false)}
 
   return (<>
     <div className="authWrapper" style={{ display: authenticatorVisibility ? "flex" : "none" }}>
@@ -250,7 +237,7 @@ const Gateway = (props) => {
         Authenticator:
         <input data-tip="❕Please provide authenticator key (from CyberDeck if you are using Engram Or from --rpc-login if you are using CLI Wallet)." type='text' id='authenticator' value={props.authenticator} placeholder='user:password' onChange={setAuthenticator} />
         <ReactTooltip />
-        <button onClick={() => {setAuthenticatorVisibility(false)}}> Next </button>
+        <button onClick={setTxidVisibility(false)}> Next </button>
       </div>
     </div>
 
@@ -270,7 +257,7 @@ const Gateway = (props) => {
       <div className="authenticator" style={{ height: "300px" }}>
         Do you want to proceed with this transaction? <br />
         {isDirectTransfer ? <> You will be sending <p> {props.USDamount} {currency} </p> to <p> {props.destinationWalletAddress} </p></> : <> Smart Contract ID to be invoked: <p> {props.DSCID} </p> <p> {props.TSCID} </p></>}
-        <button onClick={() => {setConfirmTxVisibility(false)}}> Confirm </button> {/*Add Transaction function*/}
+        <button> Confirm </button> {/*Add Transaction function*/}
       </div>
     </div>
 
@@ -278,11 +265,7 @@ const Gateway = (props) => {
       <div className="authenticator" style={{ height: "225px" }}>
         Congrats! Transaction was successful, here's your transaction ID:
         <p> {txid} </p>
-        <button onClick={() => {setTxidVisibility(false);
-        setTimeout(() => {
-          console.log('Refreshing...');
-          window.location.reload();
-        }, 1000)}}> OK </button>
+        <button> OK </button>
       </div>
     </div>
   </>)

@@ -200,13 +200,13 @@ const EditComponent = (props) => {
                 </p>
                 <p>
                     Header 🗝️: 
-                    <input data-tip="❕ Add a non-stringified header (if required)." type='text' id='CEPHeader' value={props.attributes.CEPHeader} placeholder='non-stringified header' onChange={updateCEPHeader}/><br/><br/>
+                    <input data-tip="❕ Add a non-stringified header (if required)(Should be an object)." type='text' id='CEPHeader' value={props.attributes.CEPHeader} placeholder='non-stringified header' onChange={updateCEPHeader}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <div id="endpointBody" style={{ display: endPointOptionsBodyOptionsVisibility ? "inline-flex" : "none" }}>
                     <p>
                         Body 📄: 
-                        <input data-tip="❕ Add a non-stringified body." type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/>
+                        <input data-tip="❕ Add a non-stringified body (Should be an object)." type='text' id='CEPBody' value={props.attributes.CEPBody} placeholder='non-stringified body' onChange={updateCEPBody}/><br/><br/>
                         <ReactTooltip />
                     </p>
                 </div>

@@ -21,6 +21,9 @@
   font-family: "Archivo";
   font-size: 2em;
 }
+.configurationBlock div {
+  flex-direction: column;
+}
 .configurationBlock p {
   margin: 0;
   padding-left: 2vw;
@@ -33,6 +36,36 @@
   border: none;
   border-bottom: 3px solid #9c9c9c;
   border-radius: 0px;
+  height: 45px;
+}
+.configurationBlock select {
+  border: 0px;
+}
+.configurationBlock #preset {
+  font-family: "Archivo";
+  font-size: 1rem;
+  color: #d0d0d0;
+  padding: 5px;
+  padding-left: 1.2vw;
+  margin-left: 2vw;
+  margin-bottom: 16px;
+  background: transparent;
+  border-bottom: 3px solid #9c9c9c;
+  border-radius: 0px;
+  -webkit-appearance: none;
+  background-color: #122333;
+}
+.configurationBlock #preset option {
+  font-family: "Archivo";
+  font-size: 1rem;
+  background-color: #122333;
+  border-radius: 0px;
+  height: 80px;
+}
+.configurationBlock input[type=number]::-webkit-inner-spin-button,
+.configurationBlock input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /*# sourceMappingURL=payment-gateway.css.map*/
