@@ -195,7 +195,7 @@ const EditComponent = (props) => {
                 {/* ❕You can use current user ID variable by passing ${userID} in URL */}
                 <p>
                     URL 🔗: 
-                    <input data-tip="❕ URL of the Rest EndPoint." type='text' id='CEPURL' value={props.attributes.CEPURL} placeholder='www.yoursite.com/wp-json/' onChange={updateCEPURL}/><br/><br/>
+                    <input data-tip="❕ URL of the Rest EndPoint. (You can use currently logged in userID as a variable in the URL by adding ${userID})" type='text' id='CEPURL' value={props.attributes.CEPURL} placeholder='www.yoursite.com/wp-json/' onChange={updateCEPURL}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <p>
@@ -323,7 +323,7 @@ registerBlockType("dero/payment-gateway", {
         USDamount: {type: 'integer'},
 
         SCRPC: {type: 'string'},
-        RingSize: {type: 'integer'},
+        ringSize: {type: 'integer'},
 
         destinationWalletAddress: {type: 'string'},
 
