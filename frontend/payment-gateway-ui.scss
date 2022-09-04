@@ -45,9 +45,13 @@
     background-color: #376899;
     width: 41vw;
   }
+
+  div{
+    align-self: center;
+  }
 }
 
-.authWrapper{
+.popupWrapper{
   position: fixed;
   backdrop-filter: blur(5px);
   width: 100%;
@@ -58,7 +62,7 @@
   transform: translate(-50%, -50%);
 }
 
-.authenticator{
+.popup{
   position: fixed;
   top: 50%;
   left: 50%;
@@ -90,8 +94,7 @@
   }
 
   button {
-    --btn-width: 30%;
-    width: var(--btn-width);
+    width: 150px;
     align-self: end;
     transition: all 0.1s ease-in-out;
     border-radius: 6px;
@@ -99,6 +102,12 @@
   button:hover{
     background-color: #376899;
     border-radius: 12px;
+  }
+
+  div {
+    p{
+      margin-left: 10px;
+    }
   }
 
 
