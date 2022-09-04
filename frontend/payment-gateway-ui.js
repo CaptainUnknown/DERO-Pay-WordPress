@@ -2,35 +2,40 @@ import "./payment-gateway-ui.scss"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import ReactTooltip from 'react-tooltip'
+import to from 'await-to-js'
 
 import { completePurchase } from "./completePurchase"
-import rpcCall from './rpcCall'
+import DeroBridgeApi from './bridgeAPI'
 
 var attributes;
 document.addEventListener("DOMContentLoaded", (event) => {
-    const allAttributes = document.querySelectorAll(".attributes");
-    allAttributes.forEach(attributeElement => {
-        attributes = JSON.parse(attributeElement.innerText);
-        const currentBlockName = attributes.name;
-        const currentBlock = document.querySelectorAll('.replace-' + currentBlockName)[0];
-        ReactDOM.render(<Gateway {...attributes}/>, currentBlock);
-        currentBlock.classList.remove("replace-" + currentBlockName);
-    });
+  const allAttributes = document.querySelectorAll(".attributes");
+  allAttributes.forEach(attributeElement => {
+    attributes = JSON.parse(attributeElement.innerText);
+    const currentBlockName = attributes.name;
+    const currentBlock = document.querySelectorAll('.replace-' + currentBlockName)[0];
+    ReactDOM.render(<Gateway {...attributes} />, currentBlock);
+    currentBlock.classList.remove("replace-" + currentBlockName);
+  });
 });
 
+var walletBalance = '0' + ' DERO';
+var tokenBalance = '0' + ' Token(s)';
+var isCustom = new Boolean(false);
+var isDirectTransfer = new Boolean(false);
+var DEROPrice;
+var txid = "";
+
 const Gateway = (props) => {
-  const [authenticatorVisibility, setAuthenticatorVisibility] = useState(true);
   const [txidVisibility, setTxidVisibility] = useState(false);
   const [confirmTxVisibility, setConfirmTxVisibility] = useState(false);
+  const [balanceInfoVisibility, setBalanceInfoVisibility] = useState(false);
 
-  const [authenticator, setAuthenticator] = useState("");
+  const deroBridgeApiRef = React.useRef()
+  const [bridgeInitText, setBridgeInitText] = React.useState('')
 
-  var DEROPrice;
-  var txid = "bf4b2cd942f4394a03d0d66bbf8c0639f5cbcbf340becc39d4c9e02f987cecca";
   console.log('Current User ID:' + attributes.user_id);
 
-  let isCustom = new Boolean(false);
-  let isDirectTransfer = new Boolean(false);
   if (attributes.transferMethod == 'ctsc') {
     isCustom = true;
   } else if (attributes.transferMethod == 'cdsc') {
@@ -211,79 +216,226 @@ const Gateway = (props) => {
   }
   USDtoDERO();
 
-  //const getWalletBalance = async () => {
-  //return 'Wallet Balance 📇: ' + res.data.result.balance / 100000 + ' DERO'
-  //}
-
-  const transact = async () => {
-    console.log(DEROPrice);
-    if(attributes.isDirectTransfer == 'on'){
-      //let options = { 'authenticator': userPass, 'method':'Echo', 'params':'["Hello", "World", "!"]' };
-      //rpcCall(options);
-      //const res = await rpcCall({ ...options, method: 'DERO.Ping' })
-      //if {
-      //  (res.err) return Promise.reject(new Error(res.err))
-      //  console.log(err);
-      //  alert('Transact Failed 🌐, Check Console for more details.');
-      //} else {
-      //  completePurchase(attributes.courseID, attributes.user_id)
-      //  console.log(response);
-      //  setTxidVisibility(true);
-      //}
+  React.useEffect(() => {
+    const load = async () => {
+      deroBridgeApiRef.current = new DeroBridgeApi()
+      const deroBridgeApi = deroBridgeApiRef.current
+      const [err] = await to(deroBridgeApi.init())
+      if (err) {
+        setBridgeInitText('Failed to Connect to the Extension ❌')
+      } else {
+        setBridgeInitText('Connected to the Extension ✅')
+      }
     }
-    else if (!isCustom && attributes.isDirectTransfer == 'off'){
-    }
-  }
 
+    window.addEventListener('load', load)
+    return () => window.removeEventListener('load', load)
+  }, [])
+
+
+  const getWalletBalance = React.useCallback(async () => {
+    const deroBridgeApi = deroBridgeApiRef.current;
+    const [err, res] = await to(deroBridgeApi.wallet('get-balance'));
+    if (err) alert(err.message);
+    else {
+      console.log(res);
+      walletBalance = res.data.result.balance / 100000 + ' DERO';
+      setBalanceInfoVisibility(true);
+    }
+  }, [])
+
+  const getTokenBalance = React.useCallback(async () => {
+    const deroBridgeApi = deroBridgeApiRef.current
+    const [err, res] = await to(deroBridgeApi.wallet('get-balance', { SCID: 'b2681c507c82c104ac6591f9a5f935bbf49a52f8f1faa6eb7dda8fdef81552fb' }))
+    if (err) alert(err.message)
+    else {
+      console.log(res);
+      tokenBalance = res.data.result.balance / 100000 + ' Token(s)';
+      setBalanceInfoVisibility(true);
+    }
+  }, [])
+
+  const transferDERO = React.useCallback(async () => {
+    const deroBridgeApi = deroBridgeApiRef.current
+    const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
+      transfers: [{
+        destination: attributes.destinationWalletAddress,
+        amount: DEROPrice,
+        burn: 0,
+      }]
+    }))
+    .then(res => {
+      console.log(res);
+      console.log(res[1].data.result.txid);
+      console.log(res[1].data.result.txid != '');
+      if(res[1].data.result.txid != ''){
+        // const getTransaction = React.useCallback(async () => {
+        //   const deroBridgeApi = deroBridgeApiRef.current
+        //   const [err, res] = await to(deroBridgeApi.daemon('get-transaction', { txs_hashes: ["6ba2877f558dd25cc0548255831bcab80e330debab8ec4f1782d6d797e61ba38"] }))
+        //   if (err) alert(err.message)
+        //   else alert(JSON.stringify(res))
+        // }, [])
+        txid = res[1].data.result.txid;
+        // completePurchase(attributes.courseID, attributes.user_id)
+        // .then(response => {
+        //   console.log(response);
+        // });
+        setTxidVisibility(true);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      alert('Transact Failed 🌐, Check Console for more details.');
+    });
+  }, [])
+
+  const callDSC = React.useCallback(async () => {
+    const deroBridgeApi = deroBridgeApiRef.current
+    const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
+      ringsize: attributes.ringSize || 1,
+      // sc_rpc: [
+      //   { name: "SC_ACTION", datatype: "U", value: 0 },
+      //   { name: "SC_ID", datatype: "H", value: "d80bd69e9945251b9a0127f064268d0629e743fa7fffb14ad74dbb366f932291" },
+      //   { name: "entrypoint", datatype: "S", value: "Test" },
+      //   { name: "arg", datatype: "S", value: "the_value" },
+      // ],
+      transfers: [{
+        scid: attributes.DSCID,
+        //destination: 'deto1qyg7mqwag7lch9267dttyrxy5jlc8tqwedtel77kpq0zh2zr7rvlsqgs2cz33',
+        amount: DEROPrice,
+      }]
+    }))
+    .then(res => {
+      console.log(res);
+      console.log(res[1].data.result.txid);
+      console.log(res[1].data.result.txid != '');
+      if(res[1].data.result.txid != ''){
+        // const getTransaction = React.useCallback(async () => {
+        //   const deroBridgeApi = deroBridgeApiRef.current
+        //   const [err, res] = await to(deroBridgeApi.daemon('get-transaction', { txs_hashes: ["6ba2877f558dd25cc0548255831bcab80e330debab8ec4f1782d6d797e61ba38"] }))
+        //   if (err) alert(err.message)
+        //   else alert(JSON.stringify(res))
+        // }, [])
+        txid = res[1].data.result.txid;
+        // completePurchase(attributes.courseID, attributes.user_id)
+        // .then(response => {
+        //   console.log(response);
+        // });
+        setTxidVisibility(true);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      alert('Transact Failed 🌐, Check Console for more details.');
+    });
+  }, [])
+
+  const callTSC = React.useCallback(async () => {
+    const deroBridgeApi = deroBridgeApiRef.current
+    const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
+      ringsize: attributes.ringSize || 1,
+      // sc_rpc: [
+      //   { name: "SC_ACTION", datatype: "U", value: 0 },
+      //   { name: "SC_ID", datatype: "H", value: "d80bd69e9945251b9a0127f064268d0629e743fa7fffb14ad74dbb366f932291" },
+      //   { name: "entrypoint", datatype: "S", value: "Test" },
+      //   { name: "arg", datatype: "S", value: "the_value" },
+      // ],
+      transfers: [{
+        scid: attributes.TSCID,
+        //destination: 'deto1qyg7mqwag7lch9267dttyrxy5jlc8tqwedtel77kpq0zh2zr7rvlsqgs2cz33',
+        amount: attributes.tokenAmount,
+      }]
+    }))
+    .then(res => {
+      console.log(res);
+      console.log(res[1].data.result.txid);
+      console.log(res[1].data.result.txid != '');
+      if(res[1].data.result.txid != ''){
+        // const getTransaction = React.useCallback(async () => {
+        //   const deroBridgeApi = deroBridgeApiRef.current
+        //   const [err, res] = await to(deroBridgeApi.daemon('get-transaction', { txs_hashes: ["6ba2877f558dd25cc0548255831bcab80e330debab8ec4f1782d6d797e61ba38"] }))
+        //   if (err) alert(err.message)
+        //   else alert(JSON.stringify(res))
+        // }, [])
+        txid = res[1].data.result.txid;
+        // completePurchase(attributes.courseID, attributes.user_id)
+        // .then(response => {
+        //   console.log(response);
+        // });
+        setTxidVisibility(true);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      alert('Transact Failed 🌐, Check Console for more details.');
+    });
+  }, [])
 
   let currency = 'USD';
   if (isCustom) {
     currency = 'Tokens';
   }
-  if (attributes.isDirectTransfer == 'on') {
+  if (isDirectTransfer == true || !isCustom) {
     currency = 'USD';
   }
 
   return (<>
-    <div className="authWrapper" style={{ display: authenticatorVisibility ? "flex" : "none" }}>
-      <div className="authenticator" style={{ height: "200px" }}>
-        Authenticator:
-        <input data-tip="❕Please provide authenticator key (from CyberDeck if you are using Engram Or from --rpc-login if you are using CLI Wallet)." type='text' id='authenticator' value={props.authenticator} placeholder='user:password' onChange={setAuthenticator} />
-        <ReactTooltip />
-        <button onClick={() => {setAuthenticatorVisibility(false)}}> Next </button>
+    <div onClick={() => {setBalanceInfoVisibility(false)}} className="popupWrapper" style={{ display: balanceInfoVisibility ? "flex" : "none" }}>
+      <div className="popup" style={{ height: "200px" }}>
+        Wallet Balance:
+        <p> { walletBalance } </p>
+        <button onClick={() => { setBalanceInfoVisibility(false) }}> OK </button>
       </div>
     </div>
 
 
     <div className="payBlock">
-      <h3> Pay with DERO 🔏🪙</h3>
+      <h3> Pay with DERO! 🔏🪙</h3>
 
-      <button>Purchase</button>
-      <button>Check My Wallet Balance</button>
-      <button>Check My Token Balance</button>
-      <p>Price: {props.USDamount} {currency}</p><p>bridgeInitText</p>
+      <button onClick={() => { setConfirmTxVisibility(true) }}>Purchase</button>
+      <div style={{ display: isDirectTransfer || !isCustom? "flex" : "none" }}>
+        <button onClick={() => { getWalletBalance() }}> Check My Wallet Balance </button>
+      </div>
+      <div style={{ display: !isDirectTransfer && isCustom? "flex" : "none" }}>
+        <button onClick={() => { getTokenBalance() }}> Check My Token Balance </button>
+      </div>
+      
+      <p> Price: {props.USDamount} {currency} </p>
+      <p> { bridgeInitText } </p>
     </div>
 
 
-
-    <div className="authWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
-      <div className="authenticator" style={{ height: "300px" }}>
+    <div onClick={() => {setConfirmTxVisibility(false)}} className="popupWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
+      <div className="popup" style={{ height: "200px" }}>
         Do you want to proceed with this transaction? <br />
-        {isDirectTransfer ? <> You will be sending <p> {props.USDamount} {currency} </p> to <p> {props.destinationWalletAddress} </p></> : <> Smart Contract ID to be invoked: <p> {props.DSCID} </p> <p> {props.TSCID} </p></>}
-        <button onClick={() => {setConfirmTxVisibility(false)}}> Confirm </button> {/*Add Transaction function*/}
+        <div style={{ display: !isDirectTransfer? "flex" : "none" }}> Smart Contract ID to be invoked: <p> {props.DSCID} </p> <p> {props.TSCID} </p> </div>
+        <div style={{ display: isDirectTransfer? "flex" : "none" }}> You will be sending <p> {props.USDamount} {currency} </p>⠀to <p> {props.destinationWalletAddress} </p> </div>
+        <button onClick={() => {
+          setConfirmTxVisibility(false);
+          if(isDirectTransfer){
+            transferDERO();
+          } else if(!isDirectTransfer && isCustom) {
+            callTSC();
+          } else {
+            callDSC();
+          }
+        }}> Confirm </button>
       </div>
     </div>
 
-    <div className="authWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
-      <div className="authenticator" style={{ height: "225px" }}>
+    <div className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
+      <div className="popup" style={{ height: "225px" }}>
         Congrats! Transaction was successful, here's your transaction ID:
         <p> {txid} </p>
-        <button onClick={() => {setTxidVisibility(false);
-        setTimeout(() => {
-          console.log('Refreshing...');
-          window.location.reload();
-        }, 1000)}}> OK </button>
+        <button onClick={() => {
+          setTxidVisibility(false);
+          setTimeout(() => {
+            console.log('Refreshing...');
+            window.location.reload();
+          }, 1000)
+        }}> OK </button>
       </div>
     </div>
+
   </>)
 }
