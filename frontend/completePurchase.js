@@ -8,21 +8,21 @@ const handleError = (error) => {
 
 export const completePurchase = async(options) => {
     if (action == 'learnDash') {
-        //send fetch to backend
-        let data = { "user_ids": [userID] };
+        let data = { "user_ids": [userID], "request_url": `http://${options.learnDash.courseSiteURL}/wp-json/ldlms/v1/sfwd-courses/${options.learnDash.courseID}/users`};
         let packet = JSON.stringify(data);
         console.log(purchaseData.nonce);
-        const response = await (fetch(options.shopify.url + options.shopify.courseID, {
+        const response = await (fetch(options.learnDash.courseSiteURL + 'wp-json/deropay/v1/learndash', {
             body: packet,
             headers: {
-                'Content-Type': "application/json"
+                'Content-Type': "application/json",
+                'X-WP-Nonce': purchaseData.nonce
             },
             method: "POST"
         })
         .catch((error) => {
             handleError(error);
         }));
-
+        
         if (response.ok) {
             return response.json();
         } else {
@@ -30,7 +30,7 @@ export const completePurchase = async(options) => {
         }
     }
     else if (action == 'customEP'){
-        const myHeaders =  JSON.parse(options.customEP.headers);
+        const myHeaders =  options.customEP.headers;
         const myURL = `${JSON.parse(options.customEP.url)}`;
         if(options.customEP.method == 'GET'){
             const response = await (fetch(myURL, {
@@ -49,7 +49,7 @@ export const completePurchase = async(options) => {
         }
         else if(options.customEP.method == 'POST'){
             const response = await (fetch(myURL, {
-                body: options.customEP.body,
+                body: JSON.stringify(options.customEP.body),
                 headers: myHeaders,
                 method: "POST"
             })
@@ -65,7 +65,7 @@ export const completePurchase = async(options) => {
         }
         else if(options.customEP.method == 'PUT'){
             const response = await (fetch(myURL, {
-                body: options.customEP.body,
+                body: JSON.stringify(options.customEP.body),
                 headers: myHeaders,
                 method: "PUT"
             })

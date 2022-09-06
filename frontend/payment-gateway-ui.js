@@ -1,7 +1,6 @@
 import "./payment-gateway-ui.scss"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
-import ReactTooltip from 'react-tooltip'
 import to from 'await-to-js'
 
 import { completePurchase } from "./completePurchase"
@@ -20,11 +19,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 
 var walletBalance = '0' + ' DERO';
-var tokenBalance = '0' + ' Token(s)';
+var tokenBalance = '0' + ' Tokens';
 var isCustom = new Boolean(false);
 var isDirectTransfer = new Boolean(false);
+var currency;
 var DEROPrice;
-var txid = "";
+var txid = '';
+var completePurchaseOptions;
 
 const Gateway = (props) => {
   const [txidVisibility, setTxidVisibility] = useState(false);
@@ -47,6 +48,9 @@ const Gateway = (props) => {
   }
 
   if (isCustom == true) {
+    if (attributes.tokenName == undefined) {
+      return <div className="payBlock"> <p> ❌  Missing Token Name, Please provide a token name to let your users know. </p> </div>
+    }
     if (attributes.TSCID == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Token Smart Contract ID, Gateway needs a valid Smart Contract. </p> </div>
     }
@@ -123,28 +127,28 @@ const Gateway = (props) => {
   }
 
   //Validates whether the course with provided courseID exists or not
-  let isCourseIDValid = new Boolean(true);
-  const checkCourseID = async () => {
-    await fetch(attributes.courseSiteURL + attributes.courseID)
-      .then(response => response.json())
-      .then(data => {
-        if (data.date == undefined) {
-          isCourseIDValid = false;
-        } else if (data.date) {
-          isCourseIDValid = true;
-        }
-      })
-      .catch(error => {
-        console.log(error);
+  const checkCourseID = () => {
+    let isCourseIDValid = new Boolean(true);
+    fetch(`http://${attributes.courseSiteURL}/wp-json/ldlms/v1/sfwd-courses/${attributes.courseID}/users`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.date == undefined) {
         isCourseIDValid = false;
-      });
-
-    console.log('Is Course ID Valid: ' + isCourseIDValid);
+      } else if (data.date) {
+        isCourseIDValid = true;
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      isCourseIDValid = false;
+    });
     if (!isCourseIDValid) {
       console.warn('⚠️ Invalid Course ID, It seems either the CourseID or the Course Site URL or both of the parameters you provided are invalid. Plugin may not function as expected!');
     }
   }
-  checkCourseID();
+  if (isLearnDash){
+    checkCourseID();
+  }
 
   let isAPIKeyValid = new Boolean(true);
   fetch('https://api.livecoinwatch.com/coins/single', {
@@ -159,15 +163,15 @@ const Gateway = (props) => {
       "code": "DERO"
     })
   })
-    .then(res => {
-      res.json();
-      if (res.error.code == 401) {
-        isAPIKeyValid = false;
-      }
-    })
-    .catch(error => {
+  .then(res => {
+    res.json();
+    if (res.error.code == 401) {
       isAPIKeyValid = false;
-    });
+    }
+  })
+  .catch(error => {
+    isAPIKeyValid = false;
+  });
 
   if (!isAPIKeyValid) {
     attributes.APIKey = undefined;
@@ -216,6 +220,38 @@ const Gateway = (props) => {
   }
   USDtoDERO();
 
+  //Initialize Complete Purchase Options
+  if(isLearnDash){
+    completePurchaseOptions = {
+      action: 'learnDash',
+      learnDash: {
+        courseID: attributes.courseID,
+        courseSiteURL: attributes.courseSiteURL
+      }
+    }
+  }
+  if(isShopify){
+    completePurchaseOptions = {
+      action: 'shopify',
+      shopify: {
+        storeName: attributes.shopifyStoreName,
+        accessToken: attributes.shopifyAccessToken
+      }
+    }
+  }
+  if(isCustomEP){
+    completePurchaseOptions = {
+      action: 'customEP',
+      customEP: {
+        method: attributes.fetchMethod,
+        url: attributes.CEPURL,
+        header: attributes.CEPHeader,
+        body: attributes.CEPBody
+      }
+    }
+  }
+
+
   React.useEffect(() => {
     const load = async () => {
       deroBridgeApiRef.current = new DeroBridgeApi()
@@ -227,7 +263,6 @@ const Gateway = (props) => {
         setBridgeInitText('Connected to the Extension ✅')
       }
     }
-
     window.addEventListener('load', load)
     return () => window.removeEventListener('load', load)
   }, [])
@@ -246,11 +281,13 @@ const Gateway = (props) => {
 
   const getTokenBalance = React.useCallback(async () => {
     const deroBridgeApi = deroBridgeApiRef.current
-    const [err, res] = await to(deroBridgeApi.wallet('get-balance', { SCID: 'b2681c507c82c104ac6591f9a5f935bbf49a52f8f1faa6eb7dda8fdef81552fb' }))
-    if (err) alert(err.message)
+    const [err, res] = await to(deroBridgeApi.wallet('get-balance', { SCID: attributes.TSCID }))
+    if (err){
+      alert(err.message);
+    }
     else {
       console.log(res);
-      tokenBalance = res.data.result.balance / 100000 + ' Token(s)';
+      tokenBalance = res.data.result.balance / 100000 + ' ' + attributes.tokenName;
       setBalanceInfoVisibility(true);
     }
   }, [])
@@ -269,18 +306,13 @@ const Gateway = (props) => {
       console.log(res[1].data.result.txid);
       console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
-        // const getTransaction = React.useCallback(async () => {
-        //   const deroBridgeApi = deroBridgeApiRef.current
-        //   const [err, res] = await to(deroBridgeApi.daemon('get-transaction', { txs_hashes: ["6ba2877f558dd25cc0548255831bcab80e330debab8ec4f1782d6d797e61ba38"] }))
-        //   if (err) alert(err.message)
-        //   else alert(JSON.stringify(res))
-        // }, [])
         txid = res[1].data.result.txid;
-        // completePurchase(attributes.courseID, attributes.user_id)
-        // .then(response => {
-        //   console.log(response);
-        // });
-        setTxidVisibility(true);
+        completePurchase(completePurchaseOptions)
+        .then(response => {
+          console.log(response);
+          console.log('Purchase Completed');
+          setTxidVisibility(true);
+        });
       }
     })
     .catch(err => {
@@ -293,15 +325,9 @@ const Gateway = (props) => {
     const deroBridgeApi = deroBridgeApiRef.current
     const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
       ringsize: attributes.ringSize || 1,
-      // sc_rpc: [
-      //   { name: "SC_ACTION", datatype: "U", value: 0 },
-      //   { name: "SC_ID", datatype: "H", value: "d80bd69e9945251b9a0127f064268d0629e743fa7fffb14ad74dbb366f932291" },
-      //   { name: "entrypoint", datatype: "S", value: "Test" },
-      //   { name: "arg", datatype: "S", value: "the_value" },
-      // ],
+      sc_rpc: attributes.SCRPC,
       transfers: [{
         scid: attributes.DSCID,
-        //destination: 'deto1qyg7mqwag7lch9267dttyrxy5jlc8tqwedtel77kpq0zh2zr7rvlsqgs2cz33',
         amount: DEROPrice,
       }]
     }))
@@ -310,18 +336,13 @@ const Gateway = (props) => {
       console.log(res[1].data.result.txid);
       console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
-        // const getTransaction = React.useCallback(async () => {
-        //   const deroBridgeApi = deroBridgeApiRef.current
-        //   const [err, res] = await to(deroBridgeApi.daemon('get-transaction', { txs_hashes: ["6ba2877f558dd25cc0548255831bcab80e330debab8ec4f1782d6d797e61ba38"] }))
-        //   if (err) alert(err.message)
-        //   else alert(JSON.stringify(res))
-        // }, [])
         txid = res[1].data.result.txid;
-        // completePurchase(attributes.courseID, attributes.user_id)
-        // .then(response => {
-        //   console.log(response);
-        // });
-        setTxidVisibility(true);
+        completePurchase(completePurchaseOptions)
+        .then(response => {
+          console.log(response);
+          console.log('Purchase Completed');
+          setTxidVisibility(true);
+        });
       }
     })
     .catch(err => {
@@ -334,15 +355,9 @@ const Gateway = (props) => {
     const deroBridgeApi = deroBridgeApiRef.current
     const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
       ringsize: attributes.ringSize || 1,
-      // sc_rpc: [
-      //   { name: "SC_ACTION", datatype: "U", value: 0 },
-      //   { name: "SC_ID", datatype: "H", value: "d80bd69e9945251b9a0127f064268d0629e743fa7fffb14ad74dbb366f932291" },
-      //   { name: "entrypoint", datatype: "S", value: "Test" },
-      //   { name: "arg", datatype: "S", value: "the_value" },
-      // ],
+      sc_rpc: attributes.SCRPC,
       transfers: [{
         scid: attributes.TSCID,
-        //destination: 'deto1qyg7mqwag7lch9267dttyrxy5jlc8tqwedtel77kpq0zh2zr7rvlsqgs2cz33',
         amount: attributes.tokenAmount,
       }]
     }))
@@ -351,18 +366,13 @@ const Gateway = (props) => {
       console.log(res[1].data.result.txid);
       console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
-        // const getTransaction = React.useCallback(async () => {
-        //   const deroBridgeApi = deroBridgeApiRef.current
-        //   const [err, res] = await to(deroBridgeApi.daemon('get-transaction', { txs_hashes: ["6ba2877f558dd25cc0548255831bcab80e330debab8ec4f1782d6d797e61ba38"] }))
-        //   if (err) alert(err.message)
-        //   else alert(JSON.stringify(res))
-        // }, [])
         txid = res[1].data.result.txid;
-        // completePurchase(attributes.courseID, attributes.user_id)
-        // .then(response => {
-        //   console.log(response);
-        // });
-        setTxidVisibility(true);
+        completePurchase(completePurchaseOptions)
+        .then(response => {
+          console.log(response);
+          console.log('Purchase Completed');
+          setTxidVisibility(true);
+        });
       }
     })
     .catch(err => {
@@ -371,11 +381,10 @@ const Gateway = (props) => {
     });
   }, [])
 
-  let currency = 'USD';
   if (isCustom) {
-    currency = 'Tokens';
+    currency = attributes.tokenName;
   }
-  if (isDirectTransfer == true || !isCustom) {
+  else {
     currency = 'USD';
   }
 
@@ -383,7 +392,8 @@ const Gateway = (props) => {
     <div onClick={() => {setBalanceInfoVisibility(false)}} className="popupWrapper" style={{ display: balanceInfoVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "200px" }}>
         Wallet Balance:
-        <p> { walletBalance } </p>
+        <div style={{ display: !isCustom ? "flex" : "none" }}><p> { walletBalance } </p></div>
+        <div style={{ display: isCustom ? "flex" : "none" }}><p> { tokenBalance } </p></div>
         <button onClick={() => { setBalanceInfoVisibility(false) }}> OK </button>
       </div>
     </div>
@@ -393,14 +403,14 @@ const Gateway = (props) => {
       <h3> Pay with DERO! 🔏🪙</h3>
 
       <button onClick={() => { setConfirmTxVisibility(true) }}>Purchase</button>
-      <div style={{ display: isDirectTransfer || !isCustom? "flex" : "none" }}>
+      <div style={{ display: !isCustom? "flex" : "none" }}>
         <button onClick={() => { getWalletBalance() }}> Check My Wallet Balance </button>
       </div>
-      <div style={{ display: !isDirectTransfer && isCustom? "flex" : "none" }}>
+      <div style={{ display: isCustom? "flex" : "none" }}>
         <button onClick={() => { getTokenBalance() }}> Check My Token Balance </button>
       </div>
       
-      <p> Price: {props.USDamount} {currency} </p>
+      <p> Price: {props.USDamount || props.tokenAmount } {currency} </p>
       <p> { bridgeInitText } </p>
     </div>
 
@@ -422,8 +432,15 @@ const Gateway = (props) => {
         }}> Confirm </button>
       </div>
     </div>
+    
 
-    <div className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
+    <div onClick={() => {
+      setTxidVisibility(false);
+      setTimeout(() => {
+        console.log('Refreshing...');
+        window.location.reload();
+      }, 3000)
+      }} className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "225px" }}>
         Congrats! Transaction was successful, here's your transaction ID:
         <p> {txid} </p>
@@ -432,7 +449,7 @@ const Gateway = (props) => {
           setTimeout(() => {
             console.log('Refreshing...');
             window.location.reload();
-          }, 1000)
+          }, 3000)
         }}> OK </button>
       </div>
     </div>
