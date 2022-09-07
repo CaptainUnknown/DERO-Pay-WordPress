@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 });
 
+var isShopify = new Boolean(false);
+var isLearnDash = new Boolean(false);
+var isCustomEP = new Boolean(false);
 var walletBalance = '0' + ' DERO';
 var tokenBalance = '0' + ' Tokens';
 var isCustom = new Boolean(false);
@@ -31,6 +34,7 @@ const Gateway = (props) => {
   const [txidVisibility, setTxidVisibility] = useState(false);
   const [confirmTxVisibility, setConfirmTxVisibility] = useState(false);
   const [balanceInfoVisibility, setBalanceInfoVisibility] = useState(false);
+  const [productQuantity, setProductQuantity] = useState(1);
 
   const deroBridgeApiRef = React.useRef()
   const [bridgeInitText, setBridgeInitText] = React.useState('')
@@ -43,6 +47,7 @@ const Gateway = (props) => {
     isCustom = false;
   } else if (attributes.transferMethod == 'dt') {
     isDirectTransfer = true;
+    isCustom = false;
   } else {
     return <div className="payBlock"> <p> ❌  Missing Transfer Method, Please select one of the payment methods. </p> </div>
   }
@@ -82,9 +87,6 @@ const Gateway = (props) => {
   }
 
   //Comment out this block if you are using custom script as completePurchase.js
-  let isShopify = new Boolean(false);
-  let isLearnDash = new Boolean(false);
-  let isCustomEP = new Boolean(false);
   if (attributes.actionPreset == 'shopify') {
     isShopify = true;
   } else if (attributes.actionPreset == 'learnDash') {
@@ -101,6 +103,9 @@ const Gateway = (props) => {
     }//This check will not be required 
     if (attributes.shopifyAccessToken == undefined) {
       return <div className="payBlock"> <p> ❌  Missing  ,  . </p> </div>
+    }
+    if (attributes.shopifyVariantID == undefined) {
+      return <div className="payBlock"> <p> ❌  Missing Product Variant ID, Checkout can't be processed with invalid Product ID. </p> </div>
     }
   } else if (isLearnDash == true) {
     if (attributes.courseID == undefined) {
@@ -235,7 +240,8 @@ const Gateway = (props) => {
       action: 'shopify',
       shopify: {
         storeName: attributes.shopifyStoreName,
-        accessToken: attributes.shopifyAccessToken
+        accessToken: attributes.shopifyAccessToken,
+        variantID: attributes.shopifyVariantID
       }
     }
   }
@@ -297,7 +303,7 @@ const Gateway = (props) => {
     const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
       transfers: [{
         destination: attributes.destinationWalletAddress,
-        amount: DEROPrice,
+        amount: DEROPrice * productQuantity,
         burn: 0,
       }]
     }))
@@ -328,7 +334,7 @@ const Gateway = (props) => {
       sc_rpc: attributes.SCRPC,
       transfers: [{
         scid: attributes.DSCID,
-        amount: DEROPrice,
+        amount: DEROPrice * productQuantity,
       }]
     }))
     .then(res => {
@@ -358,7 +364,7 @@ const Gateway = (props) => {
       sc_rpc: attributes.SCRPC,
       transfers: [{
         scid: attributes.TSCID,
-        amount: attributes.tokenAmount,
+        amount: attributes.tokenAmount * productQuantity,
       }]
     }))
     .then(res => {
@@ -392,8 +398,8 @@ const Gateway = (props) => {
     <div onClick={() => {setBalanceInfoVisibility(false)}} className="popupWrapper" style={{ display: balanceInfoVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "200px" }}>
         Wallet Balance:
-        <div style={{ display: !isCustom ? "flex" : "none" }}><p> { walletBalance } </p></div>
-        <div style={{ display: isCustom ? "flex" : "none" }}><p> { tokenBalance } </p></div>
+        <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}><p> { walletBalance } </p></div>
+        <div style={{ display: isCustom && !isDirectTransfer ? "flex" : "none" }}><p> { tokenBalance } </p></div>
         <button onClick={() => { setBalanceInfoVisibility(false) }}> OK </button>
       </div>
     </div>
@@ -402,15 +408,23 @@ const Gateway = (props) => {
     <div className="payBlock">
       <h3> Pay with DERO! 🔏🪙</h3>
 
+      <div style={{ display: attributes.actionPreset == 'shopify'? "flex" : "none" }}>
+        <div className="productCounter">
+          <p> Quantity: { productQuantity } </p>
+        </div>
+        <div className="productCounter">
+          <button onClick={() => { if(productQuantity < 10){setProductQuantity(productQuantity + 1)} }}> Add </button> <button onClick={() => { if(productQuantity > 0){setProductQuantity(productQuantity - 1)} }}> Remove </button>
+        </div>
+      </div>
       <button onClick={() => { setConfirmTxVisibility(true) }}>Purchase</button>
-      <div style={{ display: !isCustom? "flex" : "none" }}>
+      <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}>
         <button onClick={() => { getWalletBalance() }}> Check My Wallet Balance </button>
       </div>
-      <div style={{ display: isCustom? "flex" : "none" }}>
+      <div style={{ display: isCustom && !isDirectTransfer ? "flex" : "none" }}>
         <button onClick={() => { getTokenBalance() }}> Check My Token Balance </button>
       </div>
       
-      <p> Price: {props.USDamount || props.tokenAmount } {currency} </p>
+      <p> Price: { props.USDamount || props.tokenAmount } { currency } </p>
       <p> { bridgeInitText } </p>
     </div>
 
@@ -418,8 +432,8 @@ const Gateway = (props) => {
     <div onClick={() => {setConfirmTxVisibility(false)}} className="popupWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "200px" }}>
         Do you want to proceed with this transaction? <br />
-        <div style={{ display: !isDirectTransfer? "flex" : "none" }}> Smart Contract ID to be invoked: <p> {props.DSCID} </p> <p> {props.TSCID} </p> </div>
-        <div style={{ display: isDirectTransfer? "flex" : "none" }}> You will be sending <p> {props.USDamount} {currency} </p>⠀to <p> {props.destinationWalletAddress} </p> </div>
+        <div style={{ display: !isDirectTransfer ? "flex" : "none" }}> Smart Contract ID to be invoked: <p> {props.DSCID || props.TSCID} </p> </div>
+        <div style={{ display: isDirectTransfer? "flex" : "none" }}> You will be sending <p> {props.USDamount * productQuantity} {currency} </p>⠀to <p> {props.destinationWalletAddress} </p> </div>
         <button onClick={() => {
           setConfirmTxVisibility(false);
           if(isDirectTransfer){

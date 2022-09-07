@@ -22,7 +22,7 @@ export const completePurchase = async(options) => {
         .catch((error) => {
             handleError(error);
         }));
-        
+
         if (response.ok) {
             return response.json();
         } else {
@@ -96,7 +96,62 @@ export const completePurchase = async(options) => {
         }
     }
     else if (action == 'shopify'){
+        let checkoutToken;
+        let createCheckoutData = { 
+            "checkout": { 
+                "line_items": [{ 
+                    "variant_id": options.shopify.variantID, 
+                    "quantity": options.shopify.quantity
+                }]
+            }
+        };
+        let createCheckoutPacket = JSON.stringify(createCheckoutData);
+        let createCheckoutHeaders =  {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": `${options.shopify.accessToken}`
+        };
+        fetch(`https://${options.shopify.storeName}/admin/api/2022-07/checkouts.json`, {
+            body: createCheckoutPacket,
+            headers: createCheckoutHeaders,
+            method: "POST"
+        })
+        .then(res => {
+            res.json();
+            checkoutToken = res.token;
+            completeCheckout();
+        })
+        .catch(error => {
+            handleError(error);
+        });
 
+        const completeCheckout = async (checkoutToken) => {
+            let completeCheckoutData = {
+                "checkout": {
+                    "token": `${options.shopify.checkoutToken}`,
+                    "order": null
+                }
+            };
+            let completeCheckoutPacket = JSON.stringify(completeCheckoutData);
+            let completeCheckoutHeaders =  {
+                "Content-Type": "application/json",
+                "Retry-After": "1",
+                "X-Shopify-Access-Token": `${options.shopify.accessToken}`
+            };
+            const completeCheckoutResponse = await (fetch(`https://${options.shopify.storeName}/admin/api/2022-07/checkouts/${checkoutToken}/complete.json`, {
+                body: completeCheckoutPacket,
+                headers: completeCheckoutHeaders,
+                method: "POST"
+            })
+            .catch((error) => {
+                handleError(error);
+            }));
+
+            if (completeCheckoutResponse.ok) {
+                return completeCheckoutResponse.json();
+            } else {
+                return Promise.reject(completeCheckoutResponse);
+            }
+        }
     }
     else {
         alert('❌ No action specified');
