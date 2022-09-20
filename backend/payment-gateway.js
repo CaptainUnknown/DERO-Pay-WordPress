@@ -300,8 +300,8 @@ const EditComponent = (props) => {
 
 
             <p>
-                Livecoinwatch.com API Key 🗝️: 
-                <input data-tip="❕ This field is optional (But providing one is a good idea). But, if left empty will fall back to the default key." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
+                Coin Rranking API Key 🗝️: 
+                <input data-tip="❕ This API Key can be obtained for free at CoinRanking.com dashboard." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
                 <ReactTooltip />
             </p>
         </div>

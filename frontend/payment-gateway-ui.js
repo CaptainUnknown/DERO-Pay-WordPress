@@ -2,6 +2,7 @@ import "./payment-gateway-ui.scss"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import to from 'await-to-js'
+import axios from "axios"
 
 import { ReactComponent as Loading } from "./Loading.svg" 
 
@@ -21,27 +22,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 });
 
-var isShopify = new Boolean(false);
-var isLearnDash = new Boolean(false);
-var isCustomEP = new Boolean(false);
+var isShopify = false;
+var isLearnDash = false;
+var isCustomEP = false;
 var walletBalance = '0' + ' DERO';
 var tokenBalance = '0' + ' Tokens';
-var isCustom = new Boolean(false);
-var isDirectTransfer = new Boolean(false);
+var isCustom = false;
+var isDirectTransfer = false;
 var currency;
 var DEROPrice;
 var txid = '';
 var completePurchaseOptions;
 
 const Gateway = (props) => {
-  validateTX("c8b0de48dd85364209d60bbc0a7074745ef8687580a194b6ee661ef5024cc75f", "deroproof1qy5zrht2qe0qy4f3zkmmxs9tck8cta2ranfrv8qeqh7lrhcpcewh2qdzvfyyskpqa9fzs2ay642ynupjr9699l5987trcsrf2jehlqeezkus9m7rukaxy4j4qvn9h2kj", "0.00003", "deroi1qyzlxxgq2weyqlxg5u4tkng2lf5rktwanqhse2hwm577ps22zv2x2q9pvfz92x6rrrp0gv8f97lq5jrx8l")
   const [txidVisibility, setTxidVisibility] = useState(false);
   const [confirmTxVisibility, setConfirmTxVisibility] = useState(false);
   const [balanceInfoVisibility, setBalanceInfoVisibility] = useState(false);
-  const [productQuantity, setProductQuantity] = useState(1);
-  const [txProof, setTxProof] = useState('');
   const [txProofVisibility, setTxProofVisibility] = useState(false);
   const [loadingVisibility, setLoadingVisibility] = useState(false);
+  const [productQuantity, setProductQuantity] = useState(1);
+  const [txProof, setTxProof] = useState('');
 
   const deroBridgeApiRef = React.useRef()
   const [bridgeInitText, setBridgeInitText] = React.useState('')
@@ -137,10 +137,13 @@ const Gateway = (props) => {
       }
     }
   }
+  if (attributes.APIKey == undefined) {
+    return <div className="payBlock"> <p> ❌  Missing Coin Ranking API Key, It's required for getting exchange rates. </p> </div>
+  }
 
   //Validates whether the course with provided courseID exists or not
   const checkCourseID = () => {
-    let isCourseIDValid = new Boolean(true);
+    let isCourseIDValid = true;
     fetch(`http://${attributes.courseSiteURL}/wp-json/ldlms/v1/sfwd-courses/${attributes.courseID}/users`)
     .then(response => response.json())
     .then(data => {
@@ -162,75 +165,31 @@ const Gateway = (props) => {
     checkCourseID();
   }
 
-  let isAPIKeyValid = new Boolean(true);
-  fetch('https://api.livecoinwatch.com/coins/single', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'x-api-key': attributes.APIKey
-    },
-    body: JSON.stringify({
-      "currency": "USD",
-      "code": "DERO"
-    })
-  })
-  .then(res => {
-    res.json();
-    if (res.error.code == 401) {
-      isAPIKeyValid = false;
-    }
-  })
-  .catch(error => {
-    isAPIKeyValid = false;
-  });
-
-  if (!isAPIKeyValid) {
-    attributes.APIKey = undefined;
-    console.warn('API Key is invalid, Chaning it to Default key (Providing one ensures the plugin wont run out of daily API Limit).');
-  }
-
   const USDtoDERO = () => {
-    let myAPIKey;
-    if (attributes.APIKey == undefined || attributes.APIKey == '') {
-      //Default API Key
-      myAPIKey = 'c8573f42-e797-43e9-811d-07effb255ad8';
-    } else {
-      myAPIKey = attributes.APIKey;
-    }
-
-    var rawResponse;
-    fetch("https://api.livecoinwatch.com/coins/single", {
-      body: "{\"currency\":\"USD\",\"code\":\"DERO\",\"meta\":false}",
+    let config = {
+      method: 'get',
+      url: 'https://api.coinranking.com/v2/coin/9jgCbgZ_J9mj-',
       headers: {
-        "Content-Type": "application/json",
-        "X-Api-Key": myAPIKey
-      },
-      method: "POST"
+        'x-access-token': attributes.APIKey
+      }
+    };
+
+    axios(config)
+    .then(function (response) {
+      let exchangeRate = parseFloat(response.data.data.coin.price);
+      console.log(exchangeRate);
+        
+      DEROPrice = attributes.USDamount * (1 / exchangeRate);
+      DEROPrice = parseFloat(DEROPrice.toFixed(5));
+      DEROPrice = DEROPrice * 100000;
+      console.log(DEROPrice);
     })
-      .then(res => res.json())
-      .then(data => {
-        rawResponse = data;
-
-        const content = rawResponse;
-        let currentRate = content.rate;
-
-        let DEROamount = attributes.USDamount * (1 / currentRate);
-        DEROamount = DEROamount.toFixed(5);
-        DEROamount = parseFloat(DEROamount) * 100000;
-        console.log(content);
-        console.log(DEROamount);
-
-        DEROPrice = DEROamount;
-      })
-      .catch(err => {
-        alert('🌐 Something went wrong while getting current exchange rates for DERO, Please try again later.');
-        console.log(err);
-        console.error('If you are owner of this site, try changing Livecoinwatch API key');
-        return <div className="payBlock"> <p> ❌  Something Went wrong, Please try again later. </p> </div>
-      });
+    .catch(function (error) {
+      console.log(error);
+      //alert('⚠️ Something went wrong while getting current exchange rates for DERO, Please try again later.');
+      console.error('❌ If you are owner of this site, try checking if CoinRanking API key is valid.');
+    });
   }
-  USDtoDERO();
 
   //Initialize Complete Purchase Options
   if(isLearnDash == true){
@@ -386,17 +345,14 @@ const Gateway = (props) => {
     });
   }, [])
 
-  if (isCustom) {
-    currency = attributes.tokenName;
-  }
-  else {
-    currency = 'USD';
-  }
+  if (isCustom)  currency = attributes.tokenName;
+  else currency = 'USD';
 
   return (<>
+
   {/* Wallet Balance Popup */}
     <div onClick={() => {setBalanceInfoVisibility(false)}} className="popupWrapper" style={{ display: balanceInfoVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "200px" }}>
+      <div className="popup" style={{ height: "fit-content" }}>
         Wallet Balance:
         <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}><p> { walletBalance } </p></div>
         <div style={{ display: isCustom && !isDirectTransfer ? "flex" : "none" }}><p> { tokenBalance } </p></div>
@@ -406,7 +362,7 @@ const Gateway = (props) => {
 
     {/* Pay Block */}
     <div className="payBlock">
-      <h3> Pay with DERO! 🔏🪙</h3>
+      <h3> Pay with DERO </h3>
 
       <div style={{ display: attributes.actionPreset == 'shopify'? "flex" : "none" }}>
         <div className="productCounter">
@@ -417,7 +373,7 @@ const Gateway = (props) => {
         </div>
       </div>
       <button onClick={() => {
-        setConfirmTxVisibility(true)
+        setConfirmTxVisibility(true);
         //completePurchase(completePurchaseOptions);
         }}>Purchase</button>
       <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}>
@@ -433,19 +389,21 @@ const Gateway = (props) => {
 
     {/* Confirm TX Popup */}
     <div onClick={() => { setConfirmTxVisibility(false) }} className="popupWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "200px" }}>
+      <div className="popup" style={{ height: "fit-content" }}>
         Do you want to proceed with this transaction? <br />
         <div style={{ display: !isDirectTransfer ? "flex" : "none" }}> Smart Contract ID to be invoked: <p> {props.DSCID || props.TSCID} </p> </div>
         <div style={{ display: isDirectTransfer? "flex" : "none" }}> You will be sending <p> {props.USDamount * productQuantity} {currency} </p>⠀to <p> {props.destinationWalletAddress} </p> </div>
         <button onClick={() => {
           setConfirmTxVisibility(false);
-          if(isDirectTransfer){
-            transferDERO();
-          } else if(!isDirectTransfer && isCustom) {
-            callTSC();
-          } else {
-            callDSC();
-          }
+          setLoadingVisibility(true);
+          USDtoDERO();
+          setTimeout(() => {
+            setLoadingVisibility(false);
+            
+            if(isDirectTransfer) transferDERO()
+            else if(!isDirectTransfer && isCustom) callTSC()
+            else callDSC()
+          }, 2000);
         }}> Confirm </button>
       </div>
     </div>
@@ -453,7 +411,7 @@ const Gateway = (props) => {
 
     {/* TX Success Popup */}
     <div className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "225px" }}>
+      <div className="popup" style={{ height: "fit-content" }}>
         Congrats! Transaction was successful, here's your transaction ID:
         <p> {txid} </p>
         <button onClick={() => {
@@ -465,18 +423,14 @@ const Gateway = (props) => {
 
     {/* Proof Popup */}
     <div className="popupWrapper" style={{ display: txProofVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "240px" }}>
+      <div className="popup" style={{ height: "fit-content" }}>
         Please provide your transaction proof for confirmation:
         (You can get this from your wallet or from the transaction history in Engram)
         <input type="text" onChange={(e) => {setTxProof(e.target.value)}} />
         <button onClick={() => {
           setLoadingVisibility(true);
-          let isTXConfirmed = new Boolean(false);
-          if(isShopify){ //something
-            if(validateTX(txid, txProof, DEROPrice * productQuantity, destinationWalletAddress) == 202) isTXConfirmed = true;
-          } else {
-            if(validateTX(txid, txProof, DEROPrice, destinationWalletAddress) == 202) isTXConfirmed = true;
-          }
+          let isTXConfirmed = false;
+          if(validateTX(txid, txProof, DEROPrice * productQuantity, destinationWalletAddress) == 202) isTXConfirmed = true;
           if(isTXConfirmed){
             completePurchase(completePurchaseOptions)
             .then(response => {
@@ -495,7 +449,7 @@ const Gateway = (props) => {
     
     {/* Loading Popup */}
     <div className="popupWrapper" style={{ display: loadingVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "125px", flexDirection: "row", alignItems: "flex-start" }}>
+      <div className="popup" style={{ height: "fit-content", flexDirection: "row", alignItems: "flex-start" }}>
         <Loading/>
         <span> Verifying, Please wait... </span>
       </div>
