@@ -3,7 +3,7 @@
 /*
   Plugin Name: DERO Payment Gateway
   Description: Interface to connect with DERO RPC Chrome Extension
-  Version: 0.9.9
+  Version: 0.1.8
   Author: CaptainUnknown
   Author URI: https://web3naut.com
   License: MIT
@@ -37,10 +37,11 @@ class Block {
 
         if (!is_admin() && is_user_logged_in()) {
             $attributes['user_id'] = get_current_user_id();
-            wp_enqueue_script($this->name . '_ui_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.js", array('wp-element')); //Make sure to use double quotes after plugin_dir_url, single quotes won't use {$this->name}
+            wp_enqueue_script($this->name . '_ui_script', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.js", array('wp-element')); // Make sure to use double quotes after plugin_dir_url, single quotes won't use {$this->name}
             wp_enqueue_style($this->name . '_ui_style', plugin_dir_url(__FILE__) . "build/{$this->name}-ui.css");
             
-            wp_enqueue_script($this->name . '_rpc_script', plugin_dir_url(__FILE__) . "build/rpcCall.js", array('wp-element')); //RPC API
+            wp_enqueue_script($this->name . '_api_script', plugin_dir_url(__FILE__) . "build/bridgeAPI.js", array('wp-element'));   // DERO Bridge API
+            wp_enqueue_script($this->name . '_script', plugin_dir_url(__FILE__) . "build/validateTX.js", array('wp-element'));     //  Transaction Validation
 
             wp_enqueue_script('completePurchase', 'build/completePurchase.js');
             wp_localize_script('completePurchase', 'purchaseData', [

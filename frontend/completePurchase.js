@@ -1,5 +1,5 @@
 const handleError = (error) => {
-    console.warn(error);
+    console.error(error);
     return new Response(JSON.stringify({
         code: error.data.status,
         message: error.data.message
@@ -7,7 +7,7 @@ const handleError = (error) => {
 }
 
 export const completePurchase = async(options) => {
-    if (action == 'learnDash') {
+    if (options.action == 'learnDash') {
         let data = { "user_ids": [userID], "request_url": `http://${options.learnDash.courseSiteURL}/wp-json/ldlms/v1/sfwd-courses/${options.learnDash.courseID}/users`};
         let packet = JSON.stringify(data);
         console.log(purchaseData.nonce);
@@ -29,9 +29,9 @@ export const completePurchase = async(options) => {
             return Promise.reject(response);
         }
     }
-    else if (action == 'customEP'){
+    else if (options.action == 'customEP'){
         const myHeaders =  options.customEP.headers;
-        const myURL = `${JSON.parse(options.customEP.url)}`;
+        const myURL = options.customEP.url;
         if(options.customEP.method == 'GET'){
             const response = await (fetch(myURL, {
                 headers: myHeaders,
@@ -95,7 +95,7 @@ export const completePurchase = async(options) => {
             }
         }
     }
-    else if (action == 'shopify'){
+    else if (options.action == 'shopify'){
         let checkoutToken;
         let createCheckoutData = { 
             "checkout": { 

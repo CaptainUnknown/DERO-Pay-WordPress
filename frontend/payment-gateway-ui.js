@@ -3,7 +3,10 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import to from 'await-to-js'
 
+import { ReactComponent as Loading } from "./Loading.svg" 
+
 import { completePurchase } from "./completePurchase"
+import { validateTX } from "./validateTX"
 import DeroBridgeApi from './bridgeAPI'
 
 var attributes;
@@ -31,10 +34,14 @@ var txid = '';
 var completePurchaseOptions;
 
 const Gateway = (props) => {
+  validateTX("c8b0de48dd85364209d60bbc0a7074745ef8687580a194b6ee661ef5024cc75f", "deroproof1qy5zrht2qe0qy4f3zkmmxs9tck8cta2ranfrv8qeqh7lrhcpcewh2qdzvfyyskpqa9fzs2ay642ynupjr9699l5987trcsrf2jehlqeezkus9m7rukaxy4j4qvn9h2kj", "0.00003", "deroi1qyzlxxgq2weyqlxg5u4tkng2lf5rktwanqhse2hwm577ps22zv2x2q9pvfz92x6rrrp0gv8f97lq5jrx8l")
   const [txidVisibility, setTxidVisibility] = useState(false);
   const [confirmTxVisibility, setConfirmTxVisibility] = useState(false);
   const [balanceInfoVisibility, setBalanceInfoVisibility] = useState(false);
   const [productQuantity, setProductQuantity] = useState(1);
+  const [txProof, setTxProof] = useState('');
+  const [txProofVisibility, setTxProofVisibility] = useState(false);
+  const [loadingVisibility, setLoadingVisibility] = useState(false);
 
   const deroBridgeApiRef = React.useRef()
   const [bridgeInitText, setBridgeInitText] = React.useState('')
@@ -99,13 +106,13 @@ const Gateway = (props) => {
 
   if (isShopify == true) {
     if (attributes.shopifyStoreName == undefined) {
-      return <div className="payBlock"> <p> ❌  Missing  ,  . </p> </div>
+      return <div className="payBlock"> <p> ❌  Missing Shopify Store Name, If you're not sure about this, Visit Shopify Dashboard. </p> </div>
     }//This check will not be required 
     if (attributes.shopifyAccessToken == undefined) {
-      return <div className="payBlock"> <p> ❌  Missing  ,  . </p> </div>
+      return <div className="payBlock"> <p> ❌  Missing Shopify Access Token, If you're not sure about this, Visit Shopify Dashboard. </p> </div>
     }
     if (attributes.shopifyVariantID == undefined) {
-      return <div className="payBlock"> <p> ❌  Missing Product Variant ID, Checkout can't be processed with invalid Product ID. </p> </div>
+      return <div className="payBlock"> <p> ❌  Missing Product Variant ID, Checkout can't be processed with invalid Product Variant ID. </p> </div>
     }
   } else if (isLearnDash == true) {
     if (attributes.courseID == undefined) {
@@ -226,7 +233,7 @@ const Gateway = (props) => {
   USDtoDERO();
 
   //Initialize Complete Purchase Options
-  if(isLearnDash){
+  if(isLearnDash == true){
     completePurchaseOptions = {
       action: 'learnDash',
       learnDash: {
@@ -235,7 +242,7 @@ const Gateway = (props) => {
       }
     }
   }
-  if(isShopify){
+  if(isShopify == true){
     completePurchaseOptions = {
       action: 'shopify',
       shopify: {
@@ -245,7 +252,7 @@ const Gateway = (props) => {
       }
     }
   }
-  if(isCustomEP){
+  if(isCustomEP == true){
     completePurchaseOptions = {
       action: 'customEP',
       customEP: {
@@ -256,7 +263,6 @@ const Gateway = (props) => {
       }
     }
   }
-
 
   React.useEffect(() => {
     const load = async () => {
@@ -272,7 +278,6 @@ const Gateway = (props) => {
     window.addEventListener('load', load)
     return () => window.removeEventListener('load', load)
   }, [])
-
 
   const getWalletBalance = React.useCallback(async () => {
     const deroBridgeApi = deroBridgeApiRef.current;
@@ -303,8 +308,7 @@ const Gateway = (props) => {
     const [err, res] = await to(deroBridgeApi.wallet('start-transfer', {
       transfers: [{
         destination: attributes.destinationWalletAddress,
-        amount: DEROPrice * productQuantity,
-        burn: 0,
+        amount: DEROPrice * productQuantity
       }]
     }))
     .then(res => {
@@ -313,12 +317,7 @@ const Gateway = (props) => {
       console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
         txid = res[1].data.result.txid;
-        completePurchase(completePurchaseOptions)
-        .then(response => {
-          console.log(response);
-          console.log('Purchase Completed');
-          setTxidVisibility(true);
-        });
+        setTxidVisibility(true);
       }
     })
     .catch(err => {
@@ -346,7 +345,7 @@ const Gateway = (props) => {
         completePurchase(completePurchaseOptions)
         .then(response => {
           console.log(response);
-          console.log('Purchase Completed');
+          console.log('Purchase Completed ✅');
           setTxidVisibility(true);
         });
       }
@@ -376,7 +375,7 @@ const Gateway = (props) => {
         completePurchase(completePurchaseOptions)
         .then(response => {
           console.log(response);
-          console.log('Purchase Completed');
+          console.log('Purchase Completed ✅');
           setTxidVisibility(true);
         });
       }
@@ -395,6 +394,7 @@ const Gateway = (props) => {
   }
 
   return (<>
+  {/* Wallet Balance Popup */}
     <div onClick={() => {setBalanceInfoVisibility(false)}} className="popupWrapper" style={{ display: balanceInfoVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "200px" }}>
         Wallet Balance:
@@ -404,7 +404,7 @@ const Gateway = (props) => {
       </div>
     </div>
 
-
+    {/* Pay Block */}
     <div className="payBlock">
       <h3> Pay with DERO! 🔏🪙</h3>
 
@@ -416,7 +416,10 @@ const Gateway = (props) => {
           <button onClick={() => { if(productQuantity < 10){setProductQuantity(productQuantity + 1)} }}> Add </button> <button onClick={() => { if(productQuantity > 0){setProductQuantity(productQuantity - 1)} }}> Remove </button>
         </div>
       </div>
-      <button onClick={() => { setConfirmTxVisibility(true) }}>Purchase</button>
+      <button onClick={() => {
+        setConfirmTxVisibility(true)
+        //completePurchase(completePurchaseOptions);
+        }}>Purchase</button>
       <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}>
         <button onClick={() => { getWalletBalance() }}> Check My Wallet Balance </button>
       </div>
@@ -428,8 +431,8 @@ const Gateway = (props) => {
       <p> { bridgeInitText } </p>
     </div>
 
-
-    <div onClick={() => {setConfirmTxVisibility(false)}} className="popupWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
+    {/* Confirm TX Popup */}
+    <div onClick={() => { setConfirmTxVisibility(false) }} className="popupWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "200px" }}>
         Do you want to proceed with this transaction? <br />
         <div style={{ display: !isDirectTransfer ? "flex" : "none" }}> Smart Contract ID to be invoked: <p> {props.DSCID || props.TSCID} </p> </div>
@@ -448,23 +451,53 @@ const Gateway = (props) => {
     </div>
     
 
-    <div onClick={() => {
-      setTxidVisibility(false);
-      setTimeout(() => {
-        console.log('Refreshing...');
-        window.location.reload();
-      }, 3000)
-      }} className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
+    {/* TX Success Popup */}
+    <div className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "225px" }}>
         Congrats! Transaction was successful, here's your transaction ID:
         <p> {txid} </p>
         <button onClick={() => {
           setTxidVisibility(false);
-          setTimeout(() => {
-            console.log('Refreshing...');
-            window.location.reload();
-          }, 3000)
+          setTxProofVisibility(true);
         }}> OK </button>
+      </div>
+    </div>
+
+    {/* Proof Popup */}
+    <div className="popupWrapper" style={{ display: txProofVisibility ? "flex" : "none" }}>
+      <div className="popup" style={{ height: "240px" }}>
+        Please provide your transaction proof for confirmation:
+        (You can get this from your wallet or from the transaction history in Engram)
+        <input type="text" onChange={(e) => {setTxProof(e.target.value)}} />
+        <button onClick={() => {
+          setLoadingVisibility(true);
+          let isTXConfirmed = new Boolean(false);
+          if(isShopify){ //something
+            if(validateTX(txid, txProof, DEROPrice * productQuantity, destinationWalletAddress) == 202) isTXConfirmed = true;
+          } else {
+            if(validateTX(txid, txProof, DEROPrice, destinationWalletAddress) == 202) isTXConfirmed = true;
+          }
+          if(isTXConfirmed){
+            completePurchase(completePurchaseOptions)
+            .then(response => {
+              console.log(response);
+              console.log('Purchase Completed ✅');
+              setLoadingVisibility(false);
+              setTxidVisibility(true);
+            });
+          } else {
+            alert('❌ Invalid Transaction, Try again!');
+            setLoadingVisibility(false);
+          }
+        }}> Prove </button>
+      </div>
+    </div>
+    
+    {/* Loading Popup */}
+    <div className="popupWrapper" style={{ display: loadingVisibility ? "flex" : "none" }}>
+      <div className="popup" style={{ height: "125px", flexDirection: "row", alignItems: "flex-start" }}>
+        <Loading/>
+        <span> Verifying, Please wait... </span>
       </div>
     </div>
 

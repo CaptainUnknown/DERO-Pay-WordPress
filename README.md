@@ -1,6 +1,7 @@
 ![Powered by DERO](https://i.imgur.com/p6DRKv1.jpg)
 
-# DERO-RPC-Bridge 🔌
+# DERO Payment Gateway | WordPress 🔌![DERO Payment Gateway](https://img.shields.io/badge/0.1.8-brightgreen)
+(⚠️ README contains outdated information.)
 WordPress Plugin for an Interface to connect with [DERO RPC Chrome Extension](https://chrome.google.com/webstore/detail/dero-rpc-bridge/nmofcfcaegdplgbjnadipebgfbodplpd).
 
 Plugin connects & Communicates with DERO Wallet through the [DERO RPC Extension API](https://github.com/g45t345rt/dero-rpc-bridge). After Connecting to the wallet webapp can invoke any Smart Contract or perform a transaction with provided parameters.
@@ -18,7 +19,6 @@ After placing one of the folders in your WordPress **plugins** folder (that can 
 
 
 ## Parameters 🔧
-(⚠️ `Token SCID`, `Token Price` & `DERO SCID` have now been temporarily disabled. Because they are currently WIP.)
 
 **Token SCID**:
 
@@ -64,20 +64,17 @@ After placing one of the folders in your WordPress **plugins** folder (that can 
 ## Customization 🎛️
 **On Complete Purchase**:
 
-`completePurchase.js` - It exports a custom function that is called when the transaction has been made. `completePurchase` is a very basic function that sends the server a POST Request with ``$user_id`` & ``courseID`` as a parameters. You can add any functionality or change the REST Endpoint in `completePurchase.js` to better suit your needs.
-
-`index.php` - To add any custom script/styles to the plugin, just enqueue the scripts/styles in `index.php`. `onInit` Scripts are loaded in the editor while `onRender` is called on preview & final page.
+Edit `index.php` - To add any custom script/styles to the plugin, just enqueue the scripts/styles in `index.php`. `onInit` Scripts are loaded in the editor while `onRender` is called on preview & final page.
 [Syntax Guide to enqueue scripts](https://developer.wordpress.org/reference/functions/wp_enqueue_script/).
 [Syntax Guide to enqueue styles](https://developer.wordpress.org/reference/functions/wp_enqueue_style/).
 
 
-
 ## Screenshots 🖼️
 **Configuration Block:**
-![Configuration Block](https://i.imgur.com/2bY5coz.png)
+![Configuration Block]()
 
 **Payment Block:**
-![Payment Block](https://i.imgur.com/sQNvwwe.png)
+![Payment Block]()
 
 **LoggedOut Block:**
-![LoggedOut Block](https://i.imgur.com/uGAaJlQ.png)
+![LoggedOut Block]()

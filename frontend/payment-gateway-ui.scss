@@ -80,7 +80,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 35vw;
+  width: 45vw;
   
 
   color: #12c867;
@@ -106,6 +106,10 @@
     color: #091119;
   }
 
+  span{
+    margin-top: 15px;
+  }
+
   button {
     width: 150px;
     align-self: end;
@@ -114,13 +118,19 @@
   }
   button:hover{
     background-color: #376899;
-    border-radius: 12px;
   }
 
   div {
     p{
       margin-left: 10px;
     }
+  }
+
+  svg{
+    width: 70px;
+    height: 70px;
+    margin: 0;
+    margin-right: 10px;
   }
 
 

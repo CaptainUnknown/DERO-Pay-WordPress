@@ -27,6 +27,9 @@ const EditComponent = (props) => {
     const updateShopifyAccessToken = (event) => {
         props.setAttributes({shopifyAccessToken: event.target.value});
     }
+    const updateShopifyVariantID = (event) => {
+        props.setAttributes({shopifyVariantID: event.target.value});
+    }
 
     //LearnDash
     const updateCourseID = (event) => {
@@ -56,6 +59,9 @@ const EditComponent = (props) => {
     }
 
     //Token SC
+    const updateTokenName = (event) => {
+        props.setAttributes({tokenName: event.target.value});
+    }
     const updateTSCID = (event) => {
         props.setAttributes({TSCID: event.target.value});
     }
@@ -160,20 +166,25 @@ const EditComponent = (props) => {
             </select>
             {/* Shopify */}
             <div id="shopify" style={{ display: shopifyOptionsVisibility ? "inline-flex" : "none" }}>
+                <p> ⚠️ This feature is under functional testing. </p>
                 <p>
-                    Store Name 🛍️: 
-                    <input type='string' id='shopifyStoreName' value={props.attributes.shopifyStoreName} placeholder='myCoffeeShop' onChange={updateShopifyStoreName}/><br/><br/>
+                    Store URL 🛍️: 
+                    <input data-tip="❕Store URL (Should not contain protocol)" type='string' id='shopifyStoreName' value={props.attributes.shopifyStoreName} placeholder='your-development-store.myshopify.com' onChange={updateShopifyStoreName}/><br/><br/>
                 </p>
                 <p>
                     Shopify Access Token 🗝️: 
                     <input type='string' id='shopifyAccessToken' value={props.attributes.shopifyAccessToken} placeholder='Your Secret Access Token' onChange={updateShopifyAccessToken}/><br/><br/>
+                </p>
+                <p>
+                    Item Variant ID 📦: 
+                    <input type='string' id='shopifyVariantID' value={props.attributes.shopifyVariantID} placeholder='Variant ID of the listed item' onChange={updateShopifyVariantID}/><br/><br/>
                 </p>
             </div>
             {/* LearnDash */}
             <div id="learnDash" style={{ display: learnDashOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
                     Course ID 🔢: 
-                    <input data-tip="❕ ID of the current course. Course ID can be checked by following LearnDashs' this FAQ Guide. Read more at this Plugins' Github Repo." type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/>
+                    <input data-tip="❕ ID of the current course. Course ID can be checked by following LearnDashs' FAQ Guide. Read more about this at Plugins' Github Repo." type='number' id='courseID' value={props.attributes.courseID} placeholder='1234' onChange={updateCourseID}/><br/><br/>
                     <ReactTooltip />
                 </p>
                 <p>
@@ -225,6 +236,11 @@ const EditComponent = (props) => {
             {/* Token Smart Contract */}
             <div id="tokenSC" style={{ display: tokenOptionsVisibility ? "inline-flex" : "none" }}>
                 <p>
+                    Token Symbol 💴: 
+                    <input data-tip="❕ Token name to be displayed along with price e.g 100 MTK." type='text' id='tokenName' value={props.attributes.tokenName} placeholder='MTK' onChange={updateTokenName}/><br/><br/>
+                    <ReactTooltip />
+                </p>
+                <p>
                     Token Payment Smart Contract 📃: 
                     <input data-tip="❕ Smart Contract ID to be invoked for custom payment contract with your own Token." type='text' id='TSCID' value={props.attributes.TSCID} placeholder='Token SCID' onChange={updateTSCID}/><br/><br/>
                     <ReactTooltip />
@@ -241,7 +257,7 @@ const EditComponent = (props) => {
                 </p>
                 <p>
                     Custom Token Price 🪙: 
-                    <input data-tip="❕ The amount to be transferred when Token SCID is invoked." type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 MTK' onChange={updateTokenAmount}/><br/><br/>
+                    <input data-tip="❕ The amount to be transferred when Token SCID is invoked." type='number' id='tokenAmount' value={props.attributes.tokenAmount} placeholder='100 (MTK)' onChange={updateTokenAmount}/><br/><br/>
                     <ReactTooltip />
                 </p>
             </div>
@@ -302,6 +318,7 @@ registerBlockType("dero/payment-gateway", {
         /* Shopify */
         shopifyStoreName: {type: 'string'},
         shopifyAccessToken: {type: 'string'},
+        shopifyVariantID: {type: 'string'},
 
         /* LearnDash */
         courseID: {type: 'integer'},
@@ -316,6 +333,7 @@ registerBlockType("dero/payment-gateway", {
         transferMethod: {type: 'string'},
 
         /* Payment Option */
+        tokenName: {type: 'string'},
         TSCID: {type: 'string'},
         tokenAmount: {type: 'integer'},
 
