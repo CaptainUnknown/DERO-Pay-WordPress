@@ -1,40 +1,36 @@
-const handleError = (error) => {
-  console.error(error);
-  return new Response(JSON.stringify({
-    code: error.status,
-    message: error.message
-  }));
-}
+import axios from 'axios';
 
 export const validateTX = async(txid, txProof, DEROPrice, destinationWalletAddress) => {
-  let myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  let raw = JSON.stringify({
+  let data = JSON.stringify({
     "txid": txid,
     "txProof": txProof,
     "DEROPrice": DEROPrice,
     "destinationWalletAddress": destinationWalletAddress
   });
 
-  let requestOptions = {
-    method: 'POST',
-    headers: myHeaders,
-    body: raw,
-    redirect: 'follow'
+  let config = {
+    method: 'post',
+    url: 'https://deropay.herokuapp.com/validate',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: data
   };
 
-  const rawRes = await fetch("http://139.162.176.124:8000/validate", requestOptions)
-  .then(response => response.text())
-  .then(result => console.log(result))
-  .catch(error => {
-    console.log('error', error);
-    handleError(error);
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
+    if (response.error == 0) {
+      console.log("Payment is valid");
+      return true
+    } else {
+      console.log("Payment is invalid");
+      return false
+    }
+  })
+  .catch(function (error) {
+    console.log(error);
+    console.log("Failed to connect to validation server");
+    return false
   });
-
-  if (rawRes.ok) {
-    return rawRes.json();
-  } else {
-    return Promise.reject(rawRes);
-  }
 }
