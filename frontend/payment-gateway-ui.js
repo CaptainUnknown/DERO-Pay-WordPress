@@ -33,20 +33,21 @@ var currency;
 var DEROPrice;
 var txid = '';
 var completePurchaseOptions;
+var isExchangeRateValid = true;
 
 const Gateway = (props) => {
   const [txidVisibility, setTxidVisibility] = useState(false);
   const [confirmTxVisibility, setConfirmTxVisibility] = useState(false);
   const [balanceInfoVisibility, setBalanceInfoVisibility] = useState(false);
-  const [txProofVisibility, setTxProofVisibility] = useState(false);
   const [loadingVisibility, setLoadingVisibility] = useState(false);
   const [productQuantity, setProductQuantity] = useState(1);
+  const [txProofVisibility, setTxProofVisibility] = useState(false);
   const [txProof, setTxProof] = useState('');
+  const [errorVisibility, setErrorVisibility] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const deroBridgeApiRef = React.useRef()
   const [bridgeInitText, setBridgeInitText] = React.useState('')
-
-  console.log('Current User ID:' + attributes.user_id);
 
   if (attributes.transferMethod == 'ctsc') {
     isCustom = true;
@@ -55,11 +56,11 @@ const Gateway = (props) => {
   } else if (attributes.transferMethod == 'dt') {
     isDirectTransfer = true;
     isCustom = false;
-  } else {
+  } else if (attributes.transferMethod == undefined) {
     return <div className="payBlock"> <p> ❌  Missing Transfer Method, Please select one of the payment methods. </p> </div>
   }
 
-  if (isCustom == true) {
+  if (isCustom) {
     if (attributes.tokenName == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Token Name, Please provide a token name to let your users know. </p> </div>
     }
@@ -72,7 +73,7 @@ const Gateway = (props) => {
     if (attributes.SCRPC == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Smart Contract RPC Parameters. </p> </div>
     }
-  } else {
+  } else if (!isCustom && !isDirectTransfer) {
     if (attributes.DSCID == undefined) {
       return <div className="payBlock"> <p> ❌  Missing DERO Smart Contract ID, Gateway needs a valid Smart Contract. </p> </div>
     }
@@ -84,7 +85,7 @@ const Gateway = (props) => {
     }
   }
 
-  if (isDirectTransfer == true) {
+  if (isDirectTransfer) {
     if (attributes.destinationWalletAddress == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Destination Wallet Address, Please enter a valid wallet address to recieve your revenue in. </p> </div>
     }
@@ -104,7 +105,7 @@ const Gateway = (props) => {
     return <div className="payBlock"> <p> ❌  Missing Action Preset, Please select atleast of the actions to be executed after a successful purchase. </p> </div>
   }
 
-  if (isShopify == true) {
+  if (isShopify) {
     if (attributes.shopifyStoreName == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Shopify Store Name, If you're not sure about this, Visit Shopify Dashboard. </p> </div>
     }//This check will not be required 
@@ -114,14 +115,14 @@ const Gateway = (props) => {
     if (attributes.shopifyVariantID == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Product Variant ID, Checkout can't be processed with invalid Product Variant ID. </p> </div>
     }
-  } else if (isLearnDash == true) {
+  } else if (isLearnDash) {
     if (attributes.courseID == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Course ID, Needs a valid course ID for the user to purchase. </p> </div>
     }
     if (attributes.courseSiteURL == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Course Site URL, Please provide a valid your website URL (where courses are hosted on). </p> </div>
     }
-  } else if (isCustomEP == true) {
+  } else if (isCustomEP) {
     if (attributes.fetchMethod == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Fetch Method, Please select a valid Fetch Method for your Custom Endpoint. </p> </div>
     } else if (attributes.fetchMethod == "POST" || attributes.fetchMethod == "PUT") {
@@ -166,33 +167,32 @@ const Gateway = (props) => {
   }
 
   const USDtoDERO = () => {
-    let config = {
-      method: 'get',
-      url: 'https://api.coinranking.com/v2/coin/9jgCbgZ_J9mj-',
+    fetch("https://api.livecoinwatch.com/coins/single", {
+      body: "{\"currency\":\"USD\",\"code\":\"DERO\",\"meta\":false}",
       headers: {
-        'x-access-token': attributes.APIKey
-      }
-    };
-
-    axios(config)
-    .then(function (response) {
-      let exchangeRate = parseFloat(response.data.data.coin.price);
-      console.log(exchangeRate);
-        
-      DEROPrice = attributes.USDamount * (1 / exchangeRate);
-      DEROPrice = parseFloat(DEROPrice.toFixed(5));
-      DEROPrice = DEROPrice * 100000;
-      console.log(DEROPrice);
+        "Content-Type": "application/json",
+        "X-Api-Key": attributes.APIKey
+      },
+      method: "POST"
     })
-    .catch(function (error) {
-      console.log(error);
-      //alert('⚠️ Something went wrong while getting current exchange rates for DERO, Please try again later.');
-      console.error('❌ If you are owner of this site, try checking if CoinRanking API key is valid.');
+    .then(res => res.json())
+    .then(data => {
+      let currentRate = data.rate;
+      let DEROamount = attributes.USDamount * (1 / currentRate);
+      DEROamount = DEROamount.toFixed(5);
+      DEROamount = parseFloat(DEROamount) * 100000;
+      DEROPrice = DEROamount;
+      console.log(`DERO Price: ${DEROPrice}`);
+    })
+    .catch(err => {
+      console.log(err);
+      console.error('❌ If you are owner of this site, make sure if Livecoinwatch API key is valid or not.');
+      isExchangeRateValid = false;
     });
   }
 
   //Initialize Complete Purchase Options
-  if(isLearnDash == true){
+  if(isLearnDash){
     completePurchaseOptions = {
       action: 'learnDash',
       learnDash: {
@@ -201,7 +201,7 @@ const Gateway = (props) => {
       }
     }
   }
-  if(isShopify == true){
+  if(isShopify){
     completePurchaseOptions = {
       action: 'shopify',
       shopify: {
@@ -211,7 +211,7 @@ const Gateway = (props) => {
       }
     }
   }
-  if(isCustomEP == true){
+  if(isCustomEP){
     completePurchaseOptions = {
       action: 'customEP',
       customEP: {
@@ -235,7 +235,9 @@ const Gateway = (props) => {
       }
     }
     window.addEventListener('load', load)
-    return () => window.removeEventListener('load', load)
+    return () => {
+      window.removeEventListener('load', load)
+    }
   }, [])
 
   const getWalletBalance = React.useCallback(async () => {
@@ -273,7 +275,6 @@ const Gateway = (props) => {
     .then(res => {
       console.log(res);
       console.log(res[1].data.result.txid);
-      console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
         txid = res[1].data.result.txid;
         setTxidVisibility(true);
@@ -296,9 +297,7 @@ const Gateway = (props) => {
       }]
     }))
     .then(res => {
-      console.log(res);
       console.log(res[1].data.result.txid);
-      console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
         txid = res[1].data.result.txid;
         completePurchase(completePurchaseOptions)
@@ -326,9 +325,7 @@ const Gateway = (props) => {
       }]
     }))
     .then(res => {
-      console.log(res);
       console.log(res[1].data.result.txid);
-      console.log(res[1].data.result.txid != '');
       if(res[1].data.result.txid != ''){
         txid = res[1].data.result.txid;
         completePurchase(completePurchaseOptions)
@@ -352,7 +349,7 @@ const Gateway = (props) => {
 
   {/* Wallet Balance Popup */}
     <div onClick={() => {setBalanceInfoVisibility(false)}} className="popupWrapper" style={{ display: balanceInfoVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "fit-content" }}>
+      <div className="popup" style={{ height: "fit-content", width: "fit-content" }}>
         Wallet Balance:
         <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}><p> { walletBalance } </p></div>
         <div style={{ display: isCustom && !isDirectTransfer ? "flex" : "none" }}><p> { tokenBalance } </p></div>
@@ -372,10 +369,7 @@ const Gateway = (props) => {
           <button onClick={() => { if(productQuantity < 10){setProductQuantity(productQuantity + 1)} }}> Add </button> <button onClick={() => { if(productQuantity > 0){setProductQuantity(productQuantity - 1)} }}> Remove </button>
         </div>
       </div>
-      <button onClick={() => {
-        setConfirmTxVisibility(true);
-        //completePurchase(completePurchaseOptions);
-        }}>Purchase</button>
+      <button onClick={() => { setConfirmTxVisibility(true) }}>Purchase</button>
       <div style={{ display: !isCustom || isDirectTransfer ? "flex" : "none" }}>
         <button onClick={() => { getWalletBalance() }}> Check My Wallet Balance </button>
       </div>
@@ -389,69 +383,85 @@ const Gateway = (props) => {
 
     {/* Confirm TX Popup */}
     <div onClick={() => { setConfirmTxVisibility(false) }} className="popupWrapper" style={{ display: confirmTxVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "fit-content" }}>
+      <div className="popup" style={{ height: "fit-content", width: "fit-content", flexDirection: "column" }}>
         Do you want to proceed with this transaction? <br />
-        <div style={{ display: !isDirectTransfer ? "flex" : "none" }}> Smart Contract ID to be invoked: <p> {props.DSCID || props.TSCID} </p> </div>
-        <div style={{ display: isDirectTransfer? "flex" : "none" }}> You will be sending <p> {props.USDamount * productQuantity} {currency} </p>⠀to <p> {props.destinationWalletAddress} </p> </div>
+        <div style={{ display: !isDirectTransfer ? "flex" : "none", flexDirection: "row" }}> Smart Contract ID to be invoked: {props.DSCID || props.TSCID} </div>
+        <div style={{ display: isDirectTransfer? "flex" : "none", flexDirection: "row" }}> You will be sending {props.USDamount * productQuantity} {currency} to {props.destinationWalletAddress} </div>
         <button onClick={() => {
           setConfirmTxVisibility(false);
           setLoadingVisibility(true);
           USDtoDERO();
           setTimeout(() => {
             setLoadingVisibility(false);
-            
-            if(isDirectTransfer) transferDERO()
-            else if(!isDirectTransfer && isCustom) callTSC()
-            else callDSC()
+          
+            if(isExchangeRateValid){
+              if(isDirectTransfer) transferDERO()
+              else if(!isDirectTransfer && isCustom) callTSC()
+              else callDSC()
+            } else {
+              setLoadingVisibility(false);
+              setErrorMessage('⚠️ Something went wrong while getting current exchange rates for DERO, Please reload (or press F5) & try again.');
+              setErrorVisibility(true);
+            }
           }, 2000);
         }}> Confirm </button>
       </div>
     </div>
-    
 
     {/* TX Success Popup */}
     <div className="popupWrapper" style={{ display: txidVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "fit-content" }}>
+      <div className="popup" style={{ height: "fit-content", width: "fit-content" }}>
         Congrats! Transaction was successful, here's your transaction ID:
         <p> {txid} </p>
         <button onClick={() => {
           setTxidVisibility(false);
+          //verifyTx();
           setTxProofVisibility(true);
         }}> OK </button>
       </div>
     </div>
 
-    {/* Proof Popup */}
+    {/* Proof Popup */}    
     <div className="popupWrapper" style={{ display: txProofVisibility ? "flex" : "none" }}>
       <div className="popup" style={{ height: "fit-content" }}>
         Please provide your transaction proof for confirmation:
         (You can get this from your wallet or from the transaction history in Engram)
-        <input type="text" onChange={(e) => {setTxProof(e.target.value)}} />
+        <input type="text" onChange={(e) => { setTxProof(e.target.value) }} />
         <button onClick={() => {
           setLoadingVisibility(true);
           let isTXConfirmed = false;
-          if(validateTX(txid, txProof, DEROPrice * productQuantity, destinationWalletAddress) == 202) isTXConfirmed = true;
-          if(isTXConfirmed){
+          if (validateTX(txid, txProof, DEROPrice * productQuantity, destinationWalletAddress)) isTXConfirmed = true;
+          if (isTXConfirmed) {
             completePurchase(completePurchaseOptions)
-            .then(response => {
-              console.log(response);
-              console.log('Purchase Completed ✅');
-              setLoadingVisibility(false);
-              setTxidVisibility(true);
-            });
+              .then(response => {
+                console.log(response);
+                console.log('Purchase Completed ✅');
+                setLoadingVisibility(false);
+
+                setErrorMessage('✅ Transaction Confirmed! Purchase Completed.');
+                setErrorVisibility(true);
+              });
           } else {
-            alert('❌ Invalid Transaction, Try again!');
+            setErrorMessage('❌ Invalid Transaction, Try again!');
             setLoadingVisibility(false);
+            setErrorVisibility(true);
           }
-        }}> Prove </button>
+        }}> Next </button>
+      </div>
+    </div>
+    
+    {/* Error Popup */}
+    <div className="popupWrapper" style={{ display: errorVisibility ? "flex" : "none" }} onClick={() => { setErrorVisibility(false) }}>
+      <div className="popup" style={{ height: "fit-content", width: "fit-content", flexDirection: "row", alignItems: "flex-start" }}>
+        <span> { errorMessage } </span>
       </div>
     </div>
     
     {/* Loading Popup */}
     <div className="popupWrapper" style={{ display: loadingVisibility ? "flex" : "none" }}>
-      <div className="popup" style={{ height: "fit-content", flexDirection: "row", alignItems: "flex-start" }}>
+      <div className="popup" style={{ height: "fit-content", width: "fit-content", flexDirection: "row", alignItems: "flex-start" }}>
         <Loading/>
-        <span> Verifying, Please wait... </span>
+        <span> Loading, Please wait... </span>
       </div>
     </div>
 
