@@ -4029,15 +4029,15 @@ const EditComponent = props => {
   }; //Shopify
 
 
-  const updateShopifyStoreName = event => {
+  const updateShopifyAdminServerURI = event => {
     props.setAttributes({
-      shopifyStoreName: event.target.value
+      shopifyAdminServerURI: event.target.value
     });
   };
 
-  const updateShopifyAccessToken = event => {
+  const updateShopifyProductID = event => {
     props.setAttributes({
-      shopifyAccessToken: event.target.value
+      shopifyProductID: event.target.value
     });
   }; //LearnDash
 
@@ -4086,6 +4086,12 @@ const EditComponent = props => {
     });
   }; //Token SC
 
+
+  const updateTokenName = event => {
+    props.setAttributes({
+      tokenName: event.target.value
+    });
+  };
 
   const updateTSCID = event => {
     props.setAttributes({
@@ -4208,7 +4214,7 @@ const EditComponent = props => {
 
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "configurationBlock"
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, " DERO Payment Gateway Configuration \uD83D\uDD27"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Preset:"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("select", {
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, " DERO Payment Gateway Configuration "), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Preset:"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("select", {
     id: "preset",
     onChange: setActionOptionsVisibility
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
@@ -4226,25 +4232,27 @@ const EditComponent = props => {
     style: {
       display: shopifyOptionsVisibility ? "inline-flex" : "none"
     }
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Store Name \uD83D\uDECD\uFE0F:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Store Admin ServerURI \uD83C\uDF10:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    "data-tip": "\u2755Store Admin ServerURI (Should not contain protocol)",
     type: "string",
-    id: "shopifyStoreName",
-    value: props.attributes.shopifyStoreName,
-    placeholder: "myCoffeeShop",
-    onChange: updateShopifyStoreName
-  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null)), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Shopify Access Token \uD83D\uDDDD\uFE0F:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    id: "shopifyAdminServerURI",
+    value: props.attributes.shopifyAdminServerURI,
+    placeholder: "your-development-server.com",
+    onChange: updateShopifyAdminServerURI
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null)), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Product ID \uD83D\uDD22:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    "data-tip": "\u2755Product ID",
     type: "string",
-    id: "shopifyAccessToken",
-    value: props.attributes.shopifyAccessToken,
-    placeholder: "Your Secret Access Token",
-    onChange: updateShopifyAccessToken
+    id: "shopifyProductID",
+    value: props.attributes.shopifyProductID,
+    placeholder: "123456789",
+    onChange: updateShopifyProductID
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     id: "learnDash",
     style: {
       display: learnDashOptionsVisibility ? "inline-flex" : "none"
     }
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Course ID \uD83D\uDD22:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
-    "data-tip": "\u2755 ID of the current course. Course ID can be checked by following LearnDashs' this FAQ Guide. Read more at this Plugins' Github Repo.",
+    "data-tip": "\u2755 ID of the current course. Course ID can be checked by following LearnDashs' FAQ Guide. Read more about this at Plugins' Github Repo.",
     type: "number",
     id: "courseID",
     value: props.attributes.courseID,
@@ -4278,7 +4286,7 @@ const EditComponent = props => {
   }, "PUT"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
     value: "DELETE"
   }, "DELETE")), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "URL \uD83D\uDD17:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
-    "data-tip": "\u2755 URL of the Rest EndPoint.",
+    "data-tip": "\u2755 URL of the Rest EndPoint. (You can use currently logged in userID as a variable in the URL by adding ${userID})",
     type: "text",
     id: "CEPURL",
     value: props.attributes.CEPURL,
@@ -4321,7 +4329,14 @@ const EditComponent = props => {
     style: {
       display: tokenOptionsVisibility ? "inline-flex" : "none"
     }
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Token Payment Smart Contract \uD83D\uDCC3:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Token Symbol \uD83D\uDCB4:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    "data-tip": "\u2755 Token name to be displayed along with price e.g 100 MTK.",
+    type: "text",
+    id: "tokenName",
+    value: props.attributes.tokenName,
+    placeholder: "MTK",
+    onChange: updateTokenName
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(react_tooltip__WEBPACK_IMPORTED_MODULE_4__["default"], null)), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Token Payment Smart Contract \uD83D\uDCC3:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     "data-tip": "\u2755 Smart Contract ID to be invoked for custom payment contract with your own Token.",
     type: "text",
     id: "TSCID",
@@ -4347,7 +4362,7 @@ const EditComponent = props => {
     type: "number",
     id: "tokenAmount",
     value: props.attributes.tokenAmount,
-    placeholder: "100 MTK",
+    placeholder: "100 (MTK)",
     onChange: updateTokenAmount
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(react_tooltip__WEBPACK_IMPORTED_MODULE_4__["default"], null))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     id: "deroSC",
@@ -4401,8 +4416,8 @@ const EditComponent = props => {
     value: props.attributes.USDamount,
     placeholder: "$100",
     onChange: updateAmount
-  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(react_tooltip__WEBPACK_IMPORTED_MODULE_4__["default"], null))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Livecoinwatch.com API Key \uD83D\uDDDD\uFE0F:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
-    "data-tip": "\u2755 This field is optional (But providing one is a good idea). But, if left empty will fall back to the default key.",
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(react_tooltip__WEBPACK_IMPORTED_MODULE_4__["default"], null))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Livecoinwatch API Key \uD83D\uDDDD\uFE0F:", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    "data-tip": "\u2755 This API Key can be obtained for free at CoinRanking.com dashboard.",
     type: "text",
     id: "APIKey",
     value: props.attributes.APIKey,
@@ -4421,10 +4436,7 @@ const EditComponent = props => {
     },
 
     /* Shopify */
-    shopifyStoreName: {
-      type: 'string'
-    },
-    shopifyAccessToken: {
+    shopifyAdminServerURI: {
       type: 'string'
     },
 
@@ -4454,6 +4466,9 @@ const EditComponent = props => {
     },
 
     /* Payment Option */
+    tokenName: {
+      type: 'string'
+    },
     TSCID: {
       type: 'string'
     },
@@ -4469,7 +4484,7 @@ const EditComponent = props => {
     SCRPC: {
       type: 'string'
     },
-    RingSize: {
+    ringSize: {
       type: 'integer'
     },
     destinationWalletAddress: {

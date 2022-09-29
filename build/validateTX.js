@@ -2534,141 +2534,49 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-/*!**************************************!*\
-  !*** ./frontend/completePurchase.js ***!
-  \**************************************/
+/*!********************************!*\
+  !*** ./frontend/validateTX.js ***!
+  \********************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "completePurchase": () => (/* binding */ completePurchase)
+/* harmony export */   "validateTX": () => (/* binding */ validateTX)
 /* harmony export */ });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 
+const validateTX = async (txid, txProof, DEROPrice, destinationWalletAddress) => {
+  let data = JSON.stringify({
+    "txid": txid,
+    "txProof": txProof,
+    "DEROPrice": DEROPrice,
+    "destinationWalletAddress": destinationWalletAddress
+  });
+  let config = {
+    method: 'post',
+    url: 'https://deropay.herokuapp.com/validate',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: data
+  };
+  axios__WEBPACK_IMPORTED_MODULE_0___default()(config).then(function (response) {
+    console.log(JSON.stringify(response.data));
 
-const handleError = error => {
-  console.error(error);
-  return new Response(JSON.stringify({
-    code: error.data.status,
-    message: error.data.message
-  }));
-};
-
-const completePurchase = async options => {
-  if (options.action == 'learnDash') {
-    let data = {
-      "user_ids": [userID],
-      "request_url": `http://${options.learnDash.courseSiteURL}/wp-json/ldlms/v1/sfwd-courses/${options.learnDash.courseID}/users`
-    };
-    let packet = JSON.stringify(data);
-    console.log(purchaseData.nonce);
-    const response = await fetch(options.learnDash.courseSiteURL + 'wp-json/deropay/v1/learndash', {
-      body: packet,
-      headers: {
-        'Content-Type': "application/json",
-        'X-WP-Nonce': purchaseData.nonce
-      },
-      method: "POST"
-    }).catch(error => {
-      handleError(error);
-    });
-
-    if (response.ok) {
-      return response.json();
+    if (response.error == 0) {
+      console.log("Payment is valid");
+      return true;
     } else {
-      return Promise.reject(response);
+      console.log("Payment is invalid");
+      return false;
     }
-  } else if (options.action == 'customEP') {
-    const myHeaders = options.customEP.headers;
-    const myURL = options.customEP.url;
-
-    if (options.customEP.method == 'GET') {
-      const response = await fetch(myURL, {
-        headers: myHeaders,
-        method: "GET"
-      }).catch(error => {
-        handleError(error);
-      });
-
-      if (response.ok) {
-        return response.json();
-      } else {
-        return Promise.reject(response);
-      }
-    } else if (options.customEP.method == 'POST') {
-      const response = await fetch(myURL, {
-        body: JSON.stringify(options.customEP.body),
-        headers: myHeaders,
-        method: "POST"
-      }).catch(error => {
-        handleError(error);
-      });
-
-      if (response.ok) {
-        return response.json();
-      } else {
-        return Promise.reject(response);
-      }
-    } else if (options.customEP.method == 'PUT') {
-      const response = await fetch(myURL, {
-        body: JSON.stringify(options.customEP.body),
-        headers: myHeaders,
-        method: "PUT"
-      }).catch(error => {
-        handleError(error);
-      });
-
-      if (response.ok) {
-        return response.json();
-      } else {
-        return Promise.reject(response);
-      }
-    } else if (options.customEP.method == 'DELETE') {
-      const response = await fetch(myURL, {
-        headers: myHeaders,
-        method: "DELETE"
-      }).catch(error => {
-        handleError(error);
-      });
-
-      if (response.ok) {
-        return response.json();
-      } else {
-        return Promise.reject(response);
-      }
-    }
-  } else if (options.action == 'shopify') {
-    //make a shopidy backend
-    let data = {
-      "price": options.shopify.price,
-      "quantity": options.shopify.quantity,
-      "product_id": options.shopify.productID
-    };
-    let config = {
-      method: 'post',
-      url: `https://${options.shopify.adminServerURI}`,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: JSON.stringify(data)
-    };
-    axios__WEBPACK_IMPORTED_MODULE_0___default()(config).then(function (response) {
-      console.log(JSON.stringify(response.data));
-      return {
-        "success": true,
-        "message": `Product purchased, claim your item at our store with ${response.data.discount} as discount coupon.`
-      };
-    }).catch(function (error) {
-      return {
-        "success": false,
-        "message": `Failed to connect to shopify backend, ${error.message}.`
-      };
-    });
-  } else {
-    alert('❌ No action specified');
-  }
+  }).catch(function (error) {
+    console.log(error);
+    console.log("Failed to connect to validation server");
+    return false;
+  });
 };
 })();
 
 /******/ })()
 ;
-//# sourceMappingURL=completePurchase.js.map
+//# sourceMappingURL=validateTX.js.map

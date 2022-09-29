@@ -46,8 +46,21 @@
   background-color: #376899;
   width: 41vw;
 }
+.payBlock div {
+  align-self: center;
+}
+.payBlock .productCounter {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+.payBlock .productCounter button {
+  width: 13.5vw;
+  margin-right: 2.5vw;
+  margin-left: 2.5vw;
+}
 
-.authWrapper {
+.popupWrapper {
   position: fixed;
   -webkit-backdrop-filter: blur(5px);
           backdrop-filter: blur(5px);
@@ -59,12 +72,12 @@
   transform: translate(-50%, -50%);
 }
 
-.authenticator {
+.popup {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 35vw;
+  width: 45vw;
   color: #12c867;
   display: inline-flex;
   flex-direction: column;
@@ -77,31 +90,38 @@
   flex-direction: column;
   padding: 1rem;
 }
-.authenticator p {
+.popup p {
   color: #d0d0d0;
   font-family: "Archivo";
   margin: 0;
 }
-.authenticator p::-moz-selection {
+.popup p::-moz-selection {
   background-color: rgba(18, 200, 103, 0.5568627451);
   color: #091119;
 }
-.authenticator p::selection {
+.popup p::selection {
   background-color: rgba(18, 200, 103, 0.5568627451);
   color: #091119;
 }
-.authenticator button {
-  --btn-width: 30%;
-  width: var(--btn-width);
+.popup button {
+  width: 150px;
   align-self: end;
   transition: all 0.1s ease-in-out;
   border-radius: 6px;
 }
-.authenticator button:hover {
+.popup button:hover {
   background-color: #376899;
-  border-radius: 12px;
 }
-.authenticator input {
+.popup div p {
+  margin-left: 10px;
+}
+.popup svg {
+  width: 70px;
+  height: 70px;
+  margin: 0;
+  margin-right: 10px;
+}
+.popup input {
   color: #d0d0d0;
   font-family: "Archivo";
   margin: 0;
@@ -112,8 +132,8 @@
   height: 45px;
   margin-bottom: 0.7rem;
 }
-.authenticator input[type=number]::-webkit-inner-spin-button,
-.authenticator input[type=number]::-webkit-outer-spin-button {
+.popup input[type=number]::-webkit-inner-spin-button,
+.popup input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
