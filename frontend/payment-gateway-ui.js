@@ -108,6 +108,9 @@ const Gateway = (props) => {
     if (attributes.shopifyAdminServerURI == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Admin Server URI, It'll handle discount code generation. </p> </div>
     }
+    if (attributes.shopifyProductID == undefined) {
+      return <div className="payBlock"> <p> ❌  Missing Product ID, Visit Shopify admin panel to get the product ID. </p> </div>
+    }
   } else if (isLearnDash) {
     if (attributes.courseID == undefined) {
       return <div className="payBlock"> <p> ❌  Missing Course ID, Needs a valid course ID for the user to purchase. </p> </div>
