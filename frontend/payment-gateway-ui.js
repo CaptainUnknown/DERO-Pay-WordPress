@@ -2,7 +2,6 @@ import "./payment-gateway-ui.scss"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import to from 'await-to-js'
-import axios from "axios"
 
 import { ReactComponent as Loading } from "./Loading.svg" 
 
@@ -106,14 +105,8 @@ const Gateway = (props) => {
   }
 
   if (isShopify) {
-    if (attributes.shopifyStoreName == undefined) {
-      return <div className="payBlock"> <p> ❌  Missing Shopify Store Name, If you're not sure about this, Visit Shopify Dashboard. </p> </div>
-    }//This check will not be required 
-    if (attributes.shopifyAccessToken == undefined) {
-      return <div className="payBlock"> <p> ❌  Missing Shopify Access Token, If you're not sure about this, Visit Shopify Dashboard. </p> </div>
-    }
-    if (attributes.shopifyVariantID == undefined) {
-      return <div className="payBlock"> <p> ❌  Missing Product Variant ID, Checkout can't be processed with invalid Product Variant ID. </p> </div>
+    if (attributes.shopifyAdminServerURI == undefined) {
+      return <div className="payBlock"> <p> ❌  Missing Admin Server URI, It'll handle discount code generation. </p> </div>
     }
   } else if (isLearnDash) {
     if (attributes.courseID == undefined) {
@@ -192,33 +185,36 @@ const Gateway = (props) => {
   }
 
   //Initialize Complete Purchase Options
-  if(isLearnDash){
-    completePurchaseOptions = {
-      action: 'learnDash',
-      learnDash: {
-        courseID: attributes.courseID,
-        courseSiteURL: attributes.courseSiteURL
+  const initCompletePurchase = () => {
+    if(isLearnDash){
+      completePurchaseOptions = {
+        action: 'learnDash',
+        learnDash: {
+          courseID: attributes.courseID,
+          courseSiteURL: attributes.courseSiteURL
+        }
       }
     }
-  }
-  if(isShopify){
-    completePurchaseOptions = {
-      action: 'shopify',
-      shopify: {
-        storeName: attributes.shopifyStoreName,
-        accessToken: attributes.shopifyAccessToken,
-        variantID: attributes.shopifyVariantID
+    if(isShopify){
+      completePurchaseOptions = {
+        action: 'shopify',
+        shopify: {
+          adminServerURI: attributes.shopifyAdminServerURI,
+          price: attributes.USDamount,
+          quantity: productQuantity,
+          productID: attributes.shopifyProductID,
+        }
       }
     }
-  }
-  if(isCustomEP){
-    completePurchaseOptions = {
-      action: 'customEP',
-      customEP: {
-        method: attributes.fetchMethod,
-        url: attributes.CEPURL,
-        header: attributes.CEPHeader,
-        body: attributes.CEPBody
+    if(isCustomEP){
+      completePurchaseOptions = {
+        action: 'customEP',
+        customEP: {
+          method: attributes.fetchMethod,
+          url: attributes.CEPURL,
+          header: attributes.CEPHeader,
+          body: attributes.CEPBody
+        }
       }
     }
   }
@@ -243,7 +239,11 @@ const Gateway = (props) => {
   const getWalletBalance = React.useCallback(async () => {
     const deroBridgeApi = deroBridgeApiRef.current;
     const [err, res] = await to(deroBridgeApi.wallet('get-balance'));
-    if (err) alert(err.message);
+    if (err) {
+      console.log(err);
+      setErrorMessage('❌ Failed to get wallet balance, Please make sure to connect & authorize DERO RPC Bridge Extension.');
+      setErrorVisibility(true);
+    }
     else {
       console.log(res);
       walletBalance = res.data.result.balance / 100000 + ' DERO';
@@ -255,7 +255,9 @@ const Gateway = (props) => {
     const deroBridgeApi = deroBridgeApiRef.current
     const [err, res] = await to(deroBridgeApi.wallet('get-balance', { SCID: attributes.TSCID }))
     if (err){
-      alert(err.message);
+      console.log(err);
+      setErrorMessage('❌ Failed to get token balance, Please make sure to connect & authorize DERO RPC Bridge Extension.');
+      setErrorVisibility(true);
     }
     else {
       console.log(res);
@@ -282,7 +284,8 @@ const Gateway = (props) => {
     })
     .catch(err => {
       console.log(err);
-      alert('Transact Failed 🌐, Check Console for more details.');
+      setErrorMessage('❌ Transact Failed, Check Console for more details.');
+      setErrorVisibility(true);
     });
   }, [])
 
@@ -310,7 +313,8 @@ const Gateway = (props) => {
     })
     .catch(err => {
       console.log(err);
-      alert('Transact Failed 🌐, Check Console for more details.');
+      setErrorMessage('❌ Transact Failed, Check Console for more details.');
+      setErrorVisibility(true);
     });
   }, [])
 
@@ -338,7 +342,8 @@ const Gateway = (props) => {
     })
     .catch(err => {
       console.log(err);
-      alert('Transact Failed 🌐, Check Console for more details.');
+      setErrorMessage('❌ Transact Failed, Check Console for more details.');
+      setErrorVisibility(true);
     });
   }, [])
 
