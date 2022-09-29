@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const handleError = (error) => {
     console.error(error);
     return new Response(JSON.stringify({
@@ -96,62 +98,29 @@ export const completePurchase = async(options) => {
         }
     }
     else if (options.action == 'shopify'){
-        let checkoutToken;
-        let createCheckoutData = { 
-            "checkout": { 
-                "line_items": [{ 
-                    "variant_id": options.shopify.variantID, 
-                    "quantity": options.shopify.quantity
-                }]
-            }
+        //make a shopidy backend
+        let data = {
+            "price": options.shopify.price,
+            "quantity": options.shopify.quantity,
+            "product_id": options.shopify.productID,
         };
-        let createCheckoutPacket = JSON.stringify(createCheckoutData);
-        let createCheckoutHeaders =  {
-            "Content-Type": "application/json",
-            "X-Shopify-Access-Token": `${options.shopify.accessToken}`
-        };
-        fetch(`https://${options.shopify.storeName}/admin/api/2022-07/checkouts.json`, {
-            body: createCheckoutPacket,
-            headers: createCheckoutHeaders,
-            method: "POST"
-        })
-        .then(res => {
-            res.json();
-            checkoutToken = res.token;
-            completeCheckout();
-        })
-        .catch(error => {
-            handleError(error);
-        });
-
-        const completeCheckout = async (checkoutToken) => {
-            let completeCheckoutData = {
-                "checkout": {
-                    "token": `${options.shopify.checkoutToken}`,
-                    "order": null
-                }
-            };
-            let completeCheckoutPacket = JSON.stringify(completeCheckoutData);
-            let completeCheckoutHeaders =  {
-                "Content-Type": "application/json",
-                "Retry-After": "1",
-                "X-Shopify-Access-Token": `${options.shopify.accessToken}`
-            };
-            const completeCheckoutResponse = await (fetch(`https://${options.shopify.storeName}/admin/api/2022-07/checkouts/${checkoutToken}/complete.json`, {
-                body: completeCheckoutPacket,
-                headers: completeCheckoutHeaders,
-                method: "POST"
-            })
-            .catch((error) => {
-                handleError(error);
-            }));
-
-            if (completeCheckoutResponse.ok) {
-                return completeCheckoutResponse.json();
-            } else {
-                return Promise.reject(completeCheckoutResponse);
-            }
-        }
+        let config = {
+            method: 'post',
+            url: `https://${options.shopify.adminServerURI}`,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(data)
+          };
+        
+          axios(config)
+          .then(function (response) {
+            console.log(JSON.stringify(response.data));
+            return { "success": true, "message": `Product purchased, claim your item at our store with ${response.data.discount} as discount coupon.` };
+          })
+          .catch(function (error) {
+            return { "success": false, "message": `Failed to connect to shopify backend, ${error.message}.` };
+          });
     }
     else {
         alert('❌ No action specified');
