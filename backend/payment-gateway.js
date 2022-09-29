@@ -21,14 +21,11 @@ const EditComponent = (props) => {
     }
 
     //Shopify
-    const updateShopifyStoreName = (event) => {
-        props.setAttributes({shopifyStoreName: event.target.value});
+    const updateShopifyAdminServerURI = (event) => {
+        props.setAttributes({shopifyAdminServerURI: event.target.value});
     }
-    const updateShopifyAccessToken = (event) => {
-        props.setAttributes({shopifyAccessToken: event.target.value});
-    }
-    const updateShopifyVariantID = (event) => {
-        props.setAttributes({shopifyVariantID: event.target.value});
+    const updateShopifyProductID = (event) => {
+        props.setAttributes({shopifyProductID: event.target.value});
     }
 
     //LearnDash
@@ -154,7 +151,7 @@ const EditComponent = (props) => {
 
     return (
         <div className="configurationBlock">
-            <h3> DERO Payment Gateway Configuration 🔧</h3>
+            <h3> DERO Payment Gateway Configuration </h3>
 
             {/* ✅ Action Options ✅ */}
             <p>Preset:</p>
@@ -166,18 +163,13 @@ const EditComponent = (props) => {
             </select>
             {/* Shopify */}
             <div id="shopify" style={{ display: shopifyOptionsVisibility ? "inline-flex" : "none" }}>
-                <p> ⚠️ This feature is under functional testing. </p>
                 <p>
-                    Store URL 🛍️: 
-                    <input data-tip="❕Store URL (Should not contain protocol)" type='string' id='shopifyStoreName' value={props.attributes.shopifyStoreName} placeholder='your-development-store.myshopify.com' onChange={updateShopifyStoreName}/><br/><br/>
+                    Store Admin ServerURI 🌐: 
+                    <input data-tip="❕Store Admin ServerURI (Should not contain protocol)" type='string' id='shopifyAdminServerURI' value={props.attributes.shopifyAdminServerURI} placeholder='your-development-server.com' onChange={updateShopifyAdminServerURI}/><br/><br/>
                 </p>
                 <p>
-                    Shopify Access Token 🗝️: 
-                    <input type='string' id='shopifyAccessToken' value={props.attributes.shopifyAccessToken} placeholder='Your Secret Access Token' onChange={updateShopifyAccessToken}/><br/><br/>
-                </p>
-                <p>
-                    Item Variant ID 📦: 
-                    <input type='string' id='shopifyVariantID' value={props.attributes.shopifyVariantID} placeholder='Variant ID of the listed item' onChange={updateShopifyVariantID}/><br/><br/>
+                    Product ID 🔢:
+                    <input data-tip="❕Product ID" type='string' id='shopifyProductID' value={props.attributes.shopifyProductID} placeholder='123456789' onChange={updateShopifyProductID}/><br/><br/>
                 </p>
             </div>
             {/* LearnDash */}
@@ -300,7 +292,7 @@ const EditComponent = (props) => {
 
 
             <p>
-                Coin Rranking API Key 🗝️: 
+                Livecoinwatch API Key 🗝️: 
                 <input data-tip="❕ This API Key can be obtained for free at CoinRanking.com dashboard." type='text' id='APIKey' value={props.attributes.APIKey} placeholder='XXXX-XXXX' onChange={updateAPIKey}/><br/><br/>
                 <ReactTooltip />
             </p>
@@ -316,9 +308,7 @@ registerBlockType("dero/payment-gateway", {
         actionPreset: {type: 'string'},
 
         /* Shopify */
-        shopifyStoreName: {type: 'string'},
-        shopifyAccessToken: {type: 'string'},
-        shopifyVariantID: {type: 'string'},
+        shopifyAdminServerURI: {type: 'string'},
 
         /* LearnDash */
         courseID: {type: 'integer'},
