@@ -1,6 +1,6 @@
 ![Powered by DERO](https://i.imgur.com/p6DRKv1.jpg)
 
-# DERO Payment Gateway | WordPress 🔌![DERO Payment Gateway](https://img.shields.io/badge/0.2.0-brightgreen)
+# DERO Payment Gateway | WordPress 🔌![DERO Payment Gateway](https://img.shields.io/badge/2.0.0-brightgreen)
 WordPress Plugin for an Interface to connect with [DERO RPC Chrome Extension](https://chrome.google.com/webstore/detail/dero-rpc-bridge/nmofcfcaegdplgbjnadipebgfbodplpd).
 
 Plugin connects & Communicates with DERO Wallet through the [DERO RPC Extension API](https://github.com/g45t345rt/dero-rpc-bridge). After Connecting to the wallet webapp can invoke any Smart Contract or perform a transaction with provided parameters.
